@@ -3,17 +3,17 @@
     {
       "path": "about.html",
       "title": "About this blog",
-      "description": "Some additional details about the blog",
+      "description": "Hello! Welcome to this blog.This blog is where I share my projecta and assignments in MITB program and now mainly my DataViz works. Hope you enjoy it!",
       "author": [],
       "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-05-30T18:09:08+08:00"
+      "last_modified": "2021-06-11T09:55:12+08:00"
     },
     {
       "path": "index.html",
       "title": "DataViz Blog",
       "author": [],
       "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-05-30T18:09:18+08:00"
+      "last_modified": "2021-06-11T09:55:24+08:00"
     }
   ],
   "collections": ["posts/posts.json"]

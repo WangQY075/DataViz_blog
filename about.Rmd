@@ -1,7 +1,7 @@
 ---
 title: "About this blog"
 description: |
-  Some additional details about the blog
+  Hello! Welcome to this blog.This blog is where I share my projecta and assignments in MITB program and now mainly my DataViz works. Hope you enjoy it!
 ---
 
 ```{r setup, include=FALSE}
