@@ -1,6 +1,8 @@
 ---
 title: "DataViz Makeover 1"
-subtitle: "The first DataViz MakeOver task for ISSS608: Visual Analytics. (Tools: Tableau Desktop 2021.1,MS Excel)"
+description: |
+  The first DataViz MakeOver task for ISSS608: Visual Analytics. (Tools: Tableau Desktop 2021.1,MS Excel).
+preview: img/original graph.jpg
 author:
   - name: Qinyu Wang
     url: https://www.linkedin.com/in/qinyu-wang/
@@ -8,7 +10,7 @@ date: 05-22-2021
 output:
   distill::distill_article:
     toc: true
-    toc_float: false
+    toc_float: true
     self_contained: false
 ---
 
