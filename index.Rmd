@@ -1,5 +1,5 @@
 ---
-title: "DataViz Blog"
+title: "My DataViz learning Journery"
 site: distill::distill_website
 listing: posts
 ---
