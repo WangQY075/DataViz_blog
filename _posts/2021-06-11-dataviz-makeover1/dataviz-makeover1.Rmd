@@ -6,11 +6,6 @@ author:
   - name: Qinyu Wang
 date: 06-11-2021
 output:
-  html_document:
-    toc: true
-    toc_float:
-      collapsed: false
-      smooth_scroll: false
   distill::distill_article:
     self_contained: false
 ---
