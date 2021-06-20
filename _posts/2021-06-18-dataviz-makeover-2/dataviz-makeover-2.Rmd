@@ -1,0 +1,23 @@
+---
+title: "Dataviz makeover 2"
+description: |
+  The second DataViz MakeOver task for ISSS608: Visual Analytics. (Tools: Tableau Desktop 2021.1).
+author:
+  - name: Qinyu Wang
+    url: https://www.linkedin.com/in/qinyu-wang/
+date: 06-18-2021
+output:
+  distill::distill_article:
+    distill::distill_article:
+    toc: true
+    toc_float: true
+    self_contained: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+
