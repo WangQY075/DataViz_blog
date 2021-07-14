@@ -13,19 +13,14 @@ output:
     toc_float: true
     self_contained: false
 ---
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
-                      fig.retina = 3,
-                      eval = TRUE,
-                      message = FALSE,
-                      warning = FALSE)
-```
+
 
 # Library Packages
 ```{r}
 packages = c('raster', 'sf', 
              'tmap', 'clock', 
-             'tidyverse','ggplot2','ggraph','lubridate')
+             'tidyverse','ggplot2','ggraph',
+             'lubridate','ggthemes','viridis')
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -36,8 +31,9 @@ for (p in packages){
 
 # Import data
 ```{r}
-cc_data <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')
+cc_data<- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')
 loyalty_data <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv')
+cc_data_wkday <- cc_data
 ```
 
 # Cleaning data
@@ -47,16 +43,47 @@ loyalty_data <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv
 
 # Plot 1 canlendar heat map of cc_card data by shops
 ```{r}
-wkday_levels <- c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 
-                  'Thursday', 'Friday', 'Saturday')
-
-cc_data$dmy_hm <- date_time_parse(cc_data$timestamp,
+cc_data_wkday$dmy_hm <- date_time_parse(cc_data_wkday$timestamp,
                 zone = "",
                 format = "%m/%d/%Y %H:%M")
 
-cc_data$weekday <- as_weekday(cc_data$dmy_hm)
+cc_data_wkday$weekday <- wday(cc_data_wkday$dmy_hm, 
+                             label = TRUE, 
+                             abbr = FALSE)
 
-cc_data$hour <- get_hour(cc_data$dmy_hm)
+cc_data_wkday$date <-  dmy(cc_data_wkday$dmy_hm)
+
+cc_data_wkday$hour <- as.numeric(hour(cc_data_wkday$dmy_hm))
+
+cc_data_wkday <- cc_data_wkday %>% 
+ mutate(location=recode(location,'Katerina�s Caf�'= "Katerina's Cafe"))
+```
+
+plot <- cc_data_wkday %>% 
+  group_by(location,weekday,hour) %>% 
+  count(hour) %>% 
+  ungroup() %>% 
+  arrange(location,desc(n)) %>% 
+  ungroup()
+
+full_df <- expand.grid(location = unique(cc_data_wkday$location),
+                       weekday = unique(cc_data_wkday$weekday),
+                       hour = as.numeric(c(1:23)))
+
+plot2 <- plot %>% 
+  right_join(
+    full_df,
+    by = c('location','weekday','hour') 
+  ) %>% 
+  group_by(location,weekday) %>%
+  arrange(location,weekday,hour) %>% 
+  ungroup() %>% 
+  replace_na(list(n = 0L)) %>% 
+  mutate(hour1 = as.ordered(hour))
+
+ggplot(plot, aes(hour, weekday, fill = n) ) + 
+geom_tile(color = "white", size = 0.1)+
+facet_wrap( ~location)
 
 ```
   
