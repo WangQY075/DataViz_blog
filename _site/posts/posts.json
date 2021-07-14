@@ -1,5 +1,22 @@
 [
   {
+    "path": "posts/2021-07-14-assignment/",
+    "title": "Assignment",
+    "description": "A short description of the post.",
+    "author": [
+      {
+        "name": "Qinyu Wang",
+        "url": "https://www.linkedin.com/in/qinyu-wang/"
+      }
+    ],
+    "date": "2021-07-14",
+    "categories": [],
+    "contents": "\r\n\r\nContents\r\nLibrary Packages\r\nImport data\r\nCleaning data\r\nPlot 1 canlendar heat map of cc_card data by shops\r\n\r\nLibrary Packages\r\n\r\n\r\npackages = c('raster', 'sf', \r\n             'tmap', 'clock', \r\n             'tidyverse','ggplot2','ggraph','lubridate')\r\nfor (p in packages){\r\n  if(!require(p, character.only = T)){\r\n    install.packages(p)\r\n  }\r\n  library(p,character.only = T)\r\n}\r\n\r\n\r\n\r\nImport data\r\n\r\n\r\ncc_data <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')\r\nloyalty_data <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv')\r\n\r\n\r\n\r\nCleaning data\r\n\r\n\r\n\r\nPlot 1 canlendar heat map of cc_card data by shops\r\n\r\n\r\nwkday_levels <- c('Sunday', 'Monday', 'Tuesday', 'Wednesday', \r\n                  'Thursday', 'Friday', 'Saturday')\r\n\r\ncc_data$dmy_hm <- date_time_parse(cc_data$timestamp,\r\n                zone = \"\",\r\n                format = \"%m/%d/%Y %H:%M\")\r\n\r\ncc_data$weekday <- as_weekday(cc_data$dmy_hm)\r\n\r\ncc_data$hour <- get_hour(cc_data$dmy_hm)\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+    "preview": {},
+    "last_modified": "2021-07-14T23:22:57+08:00",
+    "input_file": {}
+  },
+  {
     "path": "posts/2021-06-18-dataviz-makeover-2/",
     "title": "Dataviz makeover 2",
     "description": "The second DataViz MakeOver task for ISSS608: Visual Analytics. (Tools: Tableau Desktop 2021.1).",
