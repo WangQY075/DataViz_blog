@@ -35,11 +35,13 @@ cc_data<- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')
 
 loyalty_data <- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv')
 
-cc_data_wkday <- cc_data
+
 ```
 
-# Data parperation
+# Data parperation-cc_data
 ```{r}
+cc_data_wkday <- cc_data
+
 cc_data_wkday$dmy_hm <- date_time_parse(cc_data_wkday$timestamp,
                 zone = "",
                 format = "%m/%d/%Y %H:%M")
@@ -56,6 +58,24 @@ cc_data_wkday$last4ccnum <- cc_data_wkday$last4ccnum
 
 ```
 
+#data parperation loyalty_data
+```{r}
+loyalty_card <- loyalty_data
+
+loyalty_card$dmy<- date_time_parse(loyalty_card$timestamp,
+                zone = "",
+                format = "%m/%d/%Y")
+
+loyalty_card$weekday <- wday(loyalty_card$dmy, 
+                             label = TRUE, 
+                             abbr = FALSE)
+
+loyalty_card$day <- day(loyalty_card$dmy)
+
+```
+
+# the most popular locations
+## Bar chart cc_data
 ```{r}
 cc_bar_chart <- cc_data_wkday %>% 
   group_by(location) %>% 
@@ -68,43 +88,97 @@ p <- ggplot(cc_bar_chart,aes(x = reorder(location,-n),
            fill="light blue") + 
   theme(axis.text.x = element_text(angle = 90, 
                                    hjust = 1, 
-                                   vjust = .5)) 
+                                   vjust = .5))
 
-print(p + ggtitle("Location by frequency") + 
-        labs(y="Frequency", x = "Location"))
+p <- p + ggtitle("Location by frequen cc") + 
+        labs(y="Frequency", x = "Location")
+
+ggplotly(p)
+```
+
+## Bar chart loyalty_data
+```{r}
+loyalty_bar_chart <- loyalty_data %>% 
+  group_by(location) %>% 
+  summarise(n = n()) %>% 
+  ungroup()
+
+p2 <- ggplot(loyalty_bar_chart,aes(x = reorder(location,-n), 
+                             y = n)) + 
+  geom_col(color="black", 
+           fill="light blue") + 
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1, 
+                                   vjust = .5))
+
+p2 <- p2 + ggtitle("Location by frequency loyalty") + 
+        labs(y="Frequency", x = "Location")
+
+ggplotly(p2)
 
 ```
 
-# when they are popular
+## Price
+```{r}
+
+```
+
+
+
+# - when they are popular?
+## Heatmap by weekday
 ```{r}
 plot <- cc_data_wkday %>% 
-  group_by(location,weekday,hour) %>% 
-  count(hour) %>% 
-  ungroup() %>% 
-  arrange(location,desc(n)) %>% 
-  ungroup()
+  group_by(location,weekday,hour,) %>% 
+  summarise(n = n()) %>% 
+  ungroup() 
 
 full_df <- expand.grid(location = unique(cc_data_wkday$location),
                        weekday = unique(cc_data_wkday$weekday),
-                       hour = as.numeric(c(1:23)))
+                       hour = c(1:23))
 
-plot2 <- plot %>% 
+plot_full <- plot %>% 
   right_join(
     full_df,
     by = c('location','weekday','hour') 
   ) %>% 
-  group_by(location,weekday) %>%
-  arrange(location,weekday,hour) %>% 
-  ungroup() %>% 
+  mutate(hour = as.ordered(hour)) %>% 
   replace_na(list(n = 0L)) %>% 
-  mutate(hour1 = as.ordered(hour))
+  filter(location %in% c('Katerina’s Café'))
 
-p <- ggplot(plot2, aes(hour1, weekday, fill = n,fig.height = 500, fig.width = 800) ) + 
-geom_tile(color = "white", size = 0.1) +
-coord_equal() + 
-  facet_wrap( ~location)
 
-p <- ggplotly(p)
-ggsave("myplot.jpg")
+pwk<- ggplot(plot_full, aes(hour, weekday, fill = n)) + 
+geom_tile(color = 'white',size = 0.1) + 
+  facet_grid(~location) +
+   scale_fill_distiller(palette = "Reds",direction = 1)
 ```
   
+## Heatmap by date
+```{r}
+plot_day <- cc_data_wkday %>% 
+  group_by(location,day,hour,) %>% 
+  summarise(n = n()) %>% 
+  ungroup() 
+
+full_df_day <- expand.grid(location = unique(cc_data_wkday$location),
+                       day = unique(cc_data_wkday$day),
+                       hour = c(1:23))
+
+plot_full_day <- plot_day %>% 
+  right_join(
+    full_df_day,
+    by = c('location','day','hour') 
+  ) %>% 
+  mutate(hour = as.ordered(hour)) %>% 
+  mutate(day = as.ordered(day)) %>% 
+  replace_na(list(n = 0L)) %>% 
+  filter(location %in% c('Katerina’s Café'))
+
+
+pd <- ggplot(plot_full_day, aes(hour, day, fill = n)) + 
+geom_tile(color = 'white',size = 0.1) + 
+  facet_grid(~location) +
+   scale_fill_distiller(palette = "Reds",direction = 1)
+
+pd
+```
