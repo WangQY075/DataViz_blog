@@ -20,7 +20,7 @@ output:
 packages = c('raster', 'sf', 
              'tmap', 'clock', 
              'tidyverse','ggplot2','ggraph',
-             'lubridate','ggthemes','viridis')
+             'lubridate','ggthemes','viridis','plotly')
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -31,17 +31,14 @@ for (p in packages){
 
 # Import data
 ```{r}
-cc_data<- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')
-loyalty_data <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv')
+cc_data<- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')
+
+loyalty_data <- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv')
+
 cc_data_wkday <- cc_data
 ```
 
-# Cleaning data
-```{r}
-
-```
-
-# Plot 1 canlendar heat map of cc_card data by shops
+# Data parperation
 ```{r}
 cc_data_wkday$dmy_hm <- date_time_parse(cc_data_wkday$timestamp,
                 zone = "",
@@ -51,14 +48,35 @@ cc_data_wkday$weekday <- wday(cc_data_wkday$dmy_hm,
                              label = TRUE, 
                              abbr = FALSE)
 
-cc_data_wkday$date <-  dmy(cc_data_wkday$dmy_hm)
+cc_data_wkday$hour <- hour(cc_data_wkday$dmy_hm)
 
-cc_data_wkday$hour <- as.numeric(hour(cc_data_wkday$dmy_hm))
+cc_data_wkday$day <- day(cc_data_wkday$dmy_hm)
 
-cc_data_wkday <- cc_data_wkday %>% 
- mutate(location=recode(location,'Katerina�s Caf�'= "Katerina's Cafe"))
+cc_data_wkday$last4ccnum <- cc_data_wkday$last4ccnum
+
 ```
 
+```{r}
+cc_bar_chart <- cc_data_wkday %>% 
+  group_by(location) %>% 
+  summarise(n = n()) %>% 
+  ungroup()
+
+p <- ggplot(cc_bar_chart,aes(x = reorder(location,-n), 
+                             y = n)) + 
+  geom_col(color="black", 
+           fill="light blue") + 
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1, 
+                                   vjust = .5)) 
+
+print(p + ggtitle("Location by frequency") + 
+        labs(y="Frequency", x = "Location"))
+
+```
+
+# when they are popular
+```{r}
 plot <- cc_data_wkday %>% 
   group_by(location,weekday,hour) %>% 
   count(hour) %>% 
@@ -81,9 +99,12 @@ plot2 <- plot %>%
   replace_na(list(n = 0L)) %>% 
   mutate(hour1 = as.ordered(hour))
 
-ggplot(plot, aes(hour, weekday, fill = n) ) + 
-geom_tile(color = "white", size = 0.1)+
-facet_wrap( ~location)
+p <- ggplot(plot2, aes(hour1, weekday, fill = n,fig.height = 500, fig.width = 800) ) + 
+geom_tile(color = "white", size = 0.1) +
+coord_equal() + 
+  facet_wrap( ~location)
 
+p <- ggplotly(p)
+ggsave("myplot.jpg")
 ```
   

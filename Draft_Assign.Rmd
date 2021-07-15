@@ -1,0 +1,28 @@
+---
+title: "draft"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Bar Chart Loyalty card
+
+```{r}
+cc_bar_chart <- cc_data_wkday %>% 
+  group_by(location) %>% 
+  summarise(n = n()) %>% 
+  ungroup()
+
+p <- ggplot(cc_bar_chart,aes(x = reorder(location,-n), 
+                             y = n)) + 
+  geom_col(color="black", 
+           fill="light blue") + 
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1, 
+                                   vjust = .5)) 
+
+print(p + ggtitle("Location by frequency") + 
+        labs(y="Frequency", x = "Location"))
+```

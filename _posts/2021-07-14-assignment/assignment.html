@@ -18,6 +18,72 @@
  <!--radix_placeholder_import_source-->
  <!--/radix_placeholder_import_source-->
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ad0000; } /* Alert */
+code span.an { color: #5e5e5e; } /* Annotation */
+code span.at { color: #20794d; } /* Attribute */
+code span.bn { color: #ad0000; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007ba5; } /* ControlFlow */
+code span.ch { color: #20794d; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #5e5e5e; } /* Comment */
+code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+code span.dt { color: #ad0000; } /* DataType */
+code span.dv { color: #ad0000; } /* DecVal */
+code span.er { color: #ad0000; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #ad0000; } /* Float */
+code span.fu { color: #4758ab; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #5e5e5e; } /* Information */
+code span.kw { color: #007ba5; } /* Keyword */
+code span.op { color: #5e5e5e; } /* Operator */
+code span.ot { color: #007ba5; } /* Other */
+code span.pp { color: #ad0000; } /* Preprocessor */
+code span.sc { color: #20794d; } /* SpecialChar */
+code span.ss { color: #20794d; } /* SpecialString */
+code span.st { color: #20794d; } /* String */
+code span.va { color: #111111; } /* Variable */
+code span.vs { color: #20794d; } /* VerbatimString */
+code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+</style>
 
   <!--radix_placeholder_meta_tags-->
   <title>Assignment</title>
@@ -50,7 +116,7 @@
   <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["assignment_files/anchor-4.2.2/anchor.min.js","assignment_files/bowser-1.9.3/bowser.min.js","assignment_files/distill-2.2.21/template.v2.js","assignment_files/header-attrs-2.7/header-attrs.js","assignment_files/jquery-1.11.3/jquery.min.js","assignment_files/popper-2.6.0/popper.min.js","assignment_files/tippy-6.2.7/tippy-bundle.umd.min.js","assignment_files/tippy-6.2.7/tippy-light-border.css","assignment_files/tippy-6.2.7/tippy.css","assignment_files/tippy-6.2.7/tippy.umd.min.js","assignment_files/webcomponents-2.0.0/webcomponents.js"]}
+  {"type":"character","attributes":{},"value":["assignment_files/anchor-4.2.2/anchor.min.js","assignment_files/bowser-1.9.3/bowser.min.js","assignment_files/distill-2.2.21/template.v2.js","assignment_files/figure-html5/unnamed-chunk-4-1.png","assignment_files/header-attrs-2.7/header-attrs.js","assignment_files/jquery-1.11.3/jquery.min.js","assignment_files/popper-2.6.0/popper.min.js","assignment_files/tippy-6.2.7/tippy-bundle.umd.min.js","assignment_files/tippy-6.2.7/tippy-light-border.css","assignment_files/tippy-6.2.7/tippy.css","assignment_files/tippy-6.2.7/tippy.umd.min.js","assignment_files/webcomponents-2.0.0/webcomponents.js","myplot.jpg","myplot.pdf"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
   <!--/radix_placeholder_navigation_in_header-->
@@ -1418,8 +1484,8 @@
 <ul>
 <li><a href="#library-packages">Library Packages</a></li>
 <li><a href="#import-data">Import data</a></li>
-<li><a href="#cleaning-data">Cleaning data</a></li>
-<li><a href="#plot-1-canlendar-heat-map-of-cc_card-data-by-shops">Plot 1 canlendar heat map of cc_card data by shops</a></li>
+<li><a href="#data-parperation">Data parperation</a></li>
+<li><a href="#when-they-are-popular">when they are popular</a></li>
 </ul>
 </nav>
 </div>
@@ -1429,7 +1495,7 @@
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>packages</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'raster'</span>, <span class='st'>'sf'</span>, 
              <span class='st'>'tmap'</span>, <span class='st'>'clock'</span>, 
              <span class='st'>'tidyverse'</span>,<span class='st'>'ggplot2'</span>,<span class='st'>'ggraph'</span>,
-             <span class='st'>'lubridate'</span>,<span class='st'>'ggthemes'</span>,<span class='st'>'viridis'</span><span class='op'>)</span>
+             <span class='st'>'lubridate'</span>,<span class='st'>'ggthemes'</span>,<span class='st'>'viridis'</span>,<span class='st'>'plotly'</span><span class='op'>)</span>
 <span class='kw'>for</span> <span class='op'>(</span><span class='va'>p</span> <span class='kw'>in</span> <span class='va'>packages</span><span class='op'>)</span><span class='op'>{</span>
   <span class='kw'>if</span><span class='op'>(</span><span class='op'>!</span><span class='kw'><a href='https://rdrr.io/r/base/library.html'>require</a></span><span class='op'>(</span><span class='va'>p</span>, character.only <span class='op'>=</span> <span class='cn'>T</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
     <span class='fu'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='op'>(</span><span class='va'>p</span><span class='op'>)</span>
@@ -1442,17 +1508,15 @@
 <h1 id="import-data">Import data</h1>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>cc_data</span><span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span><span class='st'>'D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv'</span><span class='op'>)</span>
-<span class='va'>loyalty_data</span> <span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span><span class='st'>'D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv'</span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>cc_data</span><span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.csv</a></span><span class='op'>(</span><span class='st'>'D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv'</span><span class='op'>)</span>
+
+<span class='va'>loyalty_data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.csv</a></span><span class='op'>(</span><span class='st'>'D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv'</span><span class='op'>)</span>
+
 <span class='va'>cc_data_wkday</span> <span class='op'>&lt;-</span> <span class='va'>cc_data</span>
 </code></pre>
 </div>
 </div>
-<h1 id="cleaning-data">Cleaning data</h1>
-<div class="layout-chunk" data-layout="l-body">
-
-</div>
-<h1 id="plot-1-canlendar-heat-map-of-cc_card-data-by-shops">Plot 1 canlendar heat map of cc_card data by shops</h1>
+<h1 id="data-parperation">Data parperation</h1>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>dmy_hm</span> <span class='op'>&lt;-</span> <span class='fu'>date_time_parse</span><span class='op'>(</span><span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>timestamp</span>,
@@ -1463,21 +1527,71 @@
                              label <span class='op'>=</span> <span class='cn'>TRUE</span>, 
                              abbr <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>date</span> <span class='op'>&lt;-</span>  <span class='fu'>dmy</span><span class='op'>(</span><span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>dmy_hm</span><span class='op'>)</span>
+<span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>hour</span> <span class='op'>&lt;-</span> <span class='fu'>hour</span><span class='op'>(</span><span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>dmy_hm</span><span class='op'>)</span>
 
-<span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>hour</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='fu'>hour</span><span class='op'>(</span><span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>dmy_hm</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>day</span> <span class='op'>&lt;-</span> <span class='fu'>day</span><span class='op'>(</span><span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>dmy_hm</span><span class='op'>)</span>
 
-<span class='va'>cc_data_wkday</span> <span class='op'>&lt;-</span> <span class='va'>cc_data_wkday</span> <span class='op'>%&gt;%</span> 
- <span class='fu'>mutate</span><span class='op'>(</span>location<span class='op'>=</span><span class='fu'>recode</span><span class='op'>(</span><span class='va'>location</span>,<span class='st'>'Katerina�s Caf�'</span><span class='op'>=</span> <span class='st'>"Katerina's Cafe"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>last4ccnum</span> <span class='op'>&lt;-</span> <span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>last4ccnum</span>
 </code></pre>
 </div>
 </div>
-<p>plot &lt;- cc_data_wkday %&gt;% group_by(location,weekday,hour) %&gt;% count(hour) %&gt;% ungroup() %&gt;% arrange(location,desc(n)) %&gt;% ungroup()</p>
-<p>full_df &lt;- expand.grid(location = unique(cc_data_wkday<span class="math inline">\(location),  weekday = unique(cc_data_wkday\)</span>weekday), hour = as.numeric(c(1:23)))</p>
-<p>plot2 &lt;- plot %&gt;% right_join( full_df, by = c(‘location’,‘weekday’,‘hour’) ) %&gt;% group_by(location,weekday) %&gt;% arrange(location,weekday,hour) %&gt;% ungroup() %&gt;% replace_na(list(n = 0L)) %&gt;% mutate(hour1 = as.ordered(hour))</p>
-<p>ggplot(plot, aes(hour, weekday, fill = n) ) + geom_tile(color = “white”, size = 0.1)+ facet_wrap( ~location)</p>
-<pre><code>  
-```{.r .distill-force-highlighting-css}</code></pre>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>cc_bar_chart</span> <span class='op'>&lt;-</span> <span class='va'>cc_data_wkday</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>group_by</span><span class='op'>(</span><span class='va'>location</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>summarise</span><span class='op'>(</span>n <span class='op'>=</span> <span class='fu'>n</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>ungroup</span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'>ggplot</span><span class='op'>(</span><span class='va'>cc_bar_chart</span>,<span class='fu'>aes</span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/reorder.factor.html'>reorder</a></span><span class='op'>(</span><span class='va'>location</span>,<span class='op'>-</span><span class='va'>n</span><span class='op'>)</span>, 
+                             y <span class='op'>=</span> <span class='va'>n</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> 
+  <span class='fu'>geom_col</span><span class='op'>(</span>color<span class='op'>=</span><span class='st'>"black"</span>, 
+           fill<span class='op'>=</span><span class='st'>"light blue"</span><span class='op'>)</span> <span class='op'>+</span> 
+  <span class='fu'>theme</span><span class='op'>(</span>axis.text.x <span class='op'>=</span> <span class='fu'>element_text</span><span class='op'>(</span>angle <span class='op'>=</span> <span class='fl'>90</span>, 
+                                   hjust <span class='op'>=</span> <span class='fl'>1</span>, 
+                                   vjust <span class='op'>=</span> <span class='fl'>.5</span><span class='op'>)</span><span class='op'>)</span> 
+
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>p</span> <span class='op'>+</span> <span class='fu'>ggtitle</span><span class='op'>(</span><span class='st'>"Location by frequency"</span><span class='op'>)</span> <span class='op'>+</span> 
+        <span class='fu'>labs</span><span class='op'>(</span>y<span class='op'>=</span><span class='st'>"Frequency"</span>, x <span class='op'>=</span> <span class='st'>"Location"</span><span class='op'>)</span><span class='op'>)</span>
+</code></pre>
+</div>
+<p><img src="assignment_files/figure-html5/unnamed-chunk-4-1.png" width="624" /></p>
+</div>
+<h1 id="when-they-are-popular">when they are popular</h1>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>plot</span> <span class='op'>&lt;-</span> <span class='va'>cc_data_wkday</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>group_by</span><span class='op'>(</span><span class='va'>location</span>,<span class='va'>weekday</span>,<span class='va'>hour</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>count</span><span class='op'>(</span><span class='va'>hour</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>ungroup</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>arrange</span><span class='op'>(</span><span class='va'>location</span>,<span class='fu'>desc</span><span class='op'>(</span><span class='va'>n</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>ungroup</span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='va'>full_df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/expand.grid.html'>expand.grid</a></span><span class='op'>(</span>location <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='op'>(</span><span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>location</span><span class='op'>)</span>,
+                       weekday <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='op'>(</span><span class='va'>cc_data_wkday</span><span class='op'>$</span><span class='va'>weekday</span><span class='op'>)</span>,
+                       hour <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>23</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='va'>plot2</span> <span class='op'>&lt;-</span> <span class='va'>plot</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>right_join</span><span class='op'>(</span>
+    <span class='va'>full_df</span>,
+    by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'location'</span>,<span class='st'>'weekday'</span>,<span class='st'>'hour'</span><span class='op'>)</span> 
+  <span class='op'>)</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>group_by</span><span class='op'>(</span><span class='va'>location</span>,<span class='va'>weekday</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>arrange</span><span class='op'>(</span><span class='va'>location</span>,<span class='va'>weekday</span>,<span class='va'>hour</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>ungroup</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>replace_na</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>0L</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>mutate</span><span class='op'>(</span>hour1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.ordered</a></span><span class='op'>(</span><span class='va'>hour</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'>ggplot</span><span class='op'>(</span><span class='va'>plot2</span>, <span class='fu'>aes</span><span class='op'>(</span><span class='va'>hour1</span>, <span class='va'>weekday</span>, fill <span class='op'>=</span> <span class='va'>n</span>,fig.height <span class='op'>=</span> <span class='fl'>500</span>, fig.width <span class='op'>=</span> <span class='fl'>800</span><span class='op'>)</span> <span class='op'>)</span> <span class='op'>+</span> 
+<span class='fu'>geom_tile</span><span class='op'>(</span>color <span class='op'>=</span> <span class='st'>"white"</span>, size <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span> <span class='op'>+</span>
+<span class='fu'>coord_equal</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span> 
+  <span class='fu'>facet_wrap</span><span class='op'>(</span> <span class='op'>~</span><span class='va'>location</span><span class='op'>)</span>
+
+<span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'>ggplotly</span><span class='op'>(</span><span class='va'>p</span><span class='op'>)</span>
+<span class='fu'>ggsave</span><span class='op'>(</span><span class='st'>"myplot.jpg"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
@@ -1485,15 +1599,6 @@
 <div class="d-appendix">
 </div>
 
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
 
 <!--radix_placeholder_site_after_body-->
 <!--/radix_placeholder_site_after_body-->
