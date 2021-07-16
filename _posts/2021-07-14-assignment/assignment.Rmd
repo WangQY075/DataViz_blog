@@ -13,6 +13,14 @@ output:
     toc_float: true
     self_contained: false
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      fig.retina = 3,
+                      eval = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
 
 
 # Library Packages
@@ -20,7 +28,7 @@ output:
 packages = c('raster', 'sf', 
              'tmap', 'clock', 
              'tidyverse','ggplot2','ggraph',
-             'lubridate','ggthemes','viridis','plotly')
+             'lubridate','ggthemes','viridis','plotly','treemapify')
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -35,7 +43,7 @@ cc_data<- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')
 
 loyalty_data <- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv')
 
-
+car <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/gps.csv')
 ```
 
 # Data parperation-cc_data
@@ -54,7 +62,12 @@ cc_data_wkday$hour <- hour(cc_data_wkday$dmy_hm)
 
 cc_data_wkday$day <- day(cc_data_wkday$dmy_hm)
 
-cc_data_wkday$last4ccnum <- cc_data_wkday$last4ccnum
+cc_data$last4ccnum <- as.character(cc_data$last4ccnum)
+
+breaks <- hour(hm("00:00", "5:00", "12:00", "18:00", "23:59"))
+labels <- c("Night", "Morning", "Afternoon", "Evening")
+
+cc_data_wkday$dmy_hm <- cut(x=hour(cc_data_wkday$dmy_hm), breaks = breaks, labels = labels, include.lowest=TRUE)
 
 ```
 
@@ -73,6 +86,19 @@ loyalty_card$weekday <- wday(loyalty_card$dmy,
 loyalty_card$day <- day(loyalty_card$dmy)
 
 ```
+
+#data parperation car_data
+```{r}
+car$dmy_hm <- date_time_parse(car$Timestamp,
+                zone = "",
+                format = "%m/%d/%Y %H:%M:%S")
+
+car$day <- day(car$dmy_hm)
+
+car$hour <- hour(car$dmy_hm)
+
+```
+
 
 # the most popular locations
 ## Bar chart cc_data
@@ -94,7 +120,44 @@ p <- p + ggtitle("Location by frequen cc") +
         labs(y="Frequency", x = "Location")
 
 ggplotly(p)
+
 ```
+
+## treemap cc_data
+```{r}
+cc_treemap <- cc_data_wkday %>% 
+  select(location,price) %>% 
+  group_by(location) %>% 
+  mutate(total_price = sum(price)) %>% 
+  ungroup()
+  
+
+
+sum_cc_data <- cc_data %>%
+select(location, price) %>%
+group_by(location) %>%
+summarise(total_price = sum(price), total_count = n()) %>%
+arrange(desc(total_count), desc(total_price))
+
+glimpse(sum_cc_data)
+
+
+
+
+
+
+ggplot(G20, aes(area = gdp_mil_usd, fill = hdi, label = country)) +
+  geom_treemap() +
+  geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
+                    grow = TRUE)
+
+  
+
+
+
+```
+
+
 
 ## Bar chart loyalty_data
 ```{r}
@@ -118,9 +181,16 @@ ggplotly(p2)
 
 ```
 
-## Price
+## Price_cc_card
 ```{r}
+price <- cc_data %>%
+  group_by(location) %>% 
+  mutate(total_price = sum(price)) %>% 
+    arrange(desc(total_price)) %>% 
+distinct(location,.keep_all = TRUE)
 
+ggplot(price,aes(x = location, y = total_price)) + 
+  geom_col() 
 ```
 
 
@@ -181,4 +251,29 @@ geom_tile(color = 'white',size = 0.1) +
    scale_fill_distiller(palette = "Reds",direction = 1)
 
 pd
+```
+
+## Heatmap car
+```{r}
+car_data <- car %>% 
+  group_by(day,hour) %>% 
+  summarise(n = n()) %>% 
+  ungroup() 
+
+full_df_car <- expand.grid(day = unique(car$day),
+                          hour = c(1:23))
+
+plot_full_car <- car_data %>% 
+  right_join(
+    full_df_car,
+    by = c('day','hour') 
+  ) %>% 
+  mutate(hour = as.ordered(hour)) %>% 
+  mutate(day = as.ordered(day)) %>% 
+  replace_na(list(n = 0L)) 
+
+ggplot(plot_full_car, aes(hour,day,fill = n)) + 
+geom_tile(color = 'white',size = 0.1) + 
+   scale_fill_distiller(palette = "Reds",direction = 1)
+
 ```
