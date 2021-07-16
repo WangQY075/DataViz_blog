@@ -28,7 +28,8 @@ knitr::opts_chunk$set(echo = TRUE,
 packages = c('raster', 'sf', 
              'tmap', 'clock', 
              'tidyverse','ggplot2','ggraph',
-             'lubridate','ggthemes','viridis','plotly','treemapify')
+             'lubridate','ggthemes','viridis','plotly','treemapify','sf',
+             'raster','readr','tmap','mapview')
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -48,42 +49,44 @@ car <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/gps.csv')
 
 # Data parperation-cc_data
 ```{r}
-cc_data_wkday <- cc_data
-
-cc_data_wkday$dmy_hm <- date_time_parse(cc_data_wkday$timestamp,
+cc_data$dmy_hm <- date_time_parse(cc_data$timestamp,
                 zone = "",
                 format = "%m/%d/%Y %H:%M")
 
-cc_data_wkday$weekday <- wday(cc_data_wkday$dmy_hm, 
+cc_data$weekday <- wday(cc_data$dmy_hm, 
                              label = TRUE, 
                              abbr = FALSE)
 
-cc_data_wkday$hour <- hour(cc_data_wkday$dmy_hm)
+cc_data$hour <- hour(cc_data$dmy_hm)
 
-cc_data_wkday$day <- day(cc_data_wkday$dmy_hm)
+cc_data$day <- day(cc_data$dmy_hm)
 
 cc_data$last4ccnum <- as.character(cc_data$last4ccnum)
 
-breaks <- hour(hm("00:00", "5:00", "12:00", "18:00", "23:59"))
-labels <- c("Night", "Morning", "Afternoon", "Evening")
-
-cc_data_wkday$dmy_hm <- cut(x=hour(cc_data_wkday$dmy_hm), breaks = breaks, labels = labels, include.lowest=TRUE)
+cc_data <- cc_data %>% 
+  group_by(location) %>% 
+  mutate(total_price = sum(price)) %>% 
+  ungroup()
 
 ```
 
 #data parperation loyalty_data
 ```{r}
-loyalty_card <- loyalty_data
 
-loyalty_card$dmy<- date_time_parse(loyalty_card$timestamp,
+loyalty_data$dmy<- date_time_parse(loyalty_data$timestamp,
                 zone = "",
                 format = "%m/%d/%Y")
 
-loyalty_card$weekday <- wday(loyalty_card$dmy, 
+loyalty_data$weekday <- wday(loyalty_data$dmy, 
                              label = TRUE, 
                              abbr = FALSE)
 
-loyalty_card$day <- day(loyalty_card$dmy)
+loyalty_data$day <- day(loyalty_data$dmy)
+
+loyalty_data <- loyalty_data %>% 
+  group_by(location) %>% 
+  mutate(total_price = sum(price)) %>% 
+  ungroup()
 
 ```
 
@@ -99,11 +102,43 @@ car$hour <- hour(car$dmy_hm)
 
 ```
 
+## join cc_data loyalty data
+```{r}
+joint_cc_loyalty = cc_data%>% inner_join(loyalty_data,
+                                          by=c('location','price','day','weekday'))
+
+sum_by_location <- joint_cc_loyalty %>%
+select(location, price) %>%
+group_by(location) %>%
+summarise(total_price = sum(price), total_count = n()) %>%
+arrange(desc(total_count), desc(total_price))
+
+sum_by_location_cc <- cc_data %>%
+select(location, price) %>%
+group_by(location) %>%
+summarise(total_price = sum(price), total_count = n()) %>%
+arrange(desc(total_count), desc(total_price))
+
+sum_by_location_loyalty <- loyalty_data %>%
+select(location, price) %>%
+group_by(location) %>%
+summarise(total_price = sum(price), total_count = n()) %>%
+arrange(desc(total_count), desc(total_price))
+
+
+
+glimpse(sum_by_location)
+
+```
+
+
+
+
 
 # the most popular locations
-## Bar chart cc_data
+## Bar chart cc_data by totalcount
 ```{r}
-cc_bar_chart <- cc_data_wkday %>% 
+cc_bar_chart <- cc_data %>% 
   group_by(location) %>% 
   summarise(n = n()) %>% 
   ungroup()
@@ -123,43 +158,16 @@ ggplotly(p)
 
 ```
 
-## treemap cc_data
+
+## Treemap cc_data by total count and total price
 ```{r}
-cc_treemap <- cc_data_wkday %>% 
-  select(location,price) %>% 
-  group_by(location) %>% 
-  mutate(total_price = sum(price)) %>% 
-  ungroup()
-  
-
-
-sum_cc_data <- cc_data %>%
-select(location, price) %>%
-group_by(location) %>%
-summarise(total_price = sum(price), total_count = n()) %>%
-arrange(desc(total_count), desc(total_price))
-
-glimpse(sum_cc_data)
-
-
-
-
-
-
-ggplot(G20, aes(area = gdp_mil_usd, fill = hdi, label = country)) +
-  geom_treemap() +
+ggplot(sum_by_location_cc, aes(area = total_count, fill = total_price, label = location)) +
+  geom_treemap(palette = "Set2", type="index") +
   geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
                     grow = TRUE)
-
-  
-
-
-
 ```
 
-
-
-## Bar chart loyalty_data
+## Bar chart loyalty_data by total count
 ```{r}
 loyalty_bar_chart <- loyalty_data %>% 
   group_by(location) %>% 
@@ -181,30 +189,29 @@ ggplotly(p2)
 
 ```
 
-## Price_cc_card
+## Price box plot cc_card
 ```{r}
-price <- cc_data %>%
-  group_by(location) %>% 
-  mutate(total_price = sum(price)) %>% 
-    arrange(desc(total_price)) %>% 
-distinct(location,.keep_all = TRUE)
-
-ggplot(price,aes(x = location, y = total_price)) + 
-  geom_col() 
+ggplot(cc_data, aes(x=price, y=reorder(location,total_price))) + 
+  geom_boxplot(outlier.colour="tan1")
 ```
 
+## Price box plot loyalty data
+```{r}
+ggplot(loyalty_data, aes(x=price, y=reorder(location,total_price))) + 
+  geom_boxplot(outlier.colour="tan1")
 
+```
 
 # - when they are popular?
-## Heatmap by weekday
+## Heatmap  cc data by weekday and hour
 ```{r}
-plot <- cc_data_wkday %>% 
+plot <- cc_data%>% 
   group_by(location,weekday,hour,) %>% 
   summarise(n = n()) %>% 
   ungroup() 
 
-full_df <- expand.grid(location = unique(cc_data_wkday$location),
-                       weekday = unique(cc_data_wkday$weekday),
+full_df <- expand.grid(location = unique(cc_data$location),
+                       weekday = unique(cc_data$weekday),
                        hour = c(1:23))
 
 plot_full <- plot %>% 
@@ -223,15 +230,15 @@ geom_tile(color = 'white',size = 0.1) +
    scale_fill_distiller(palette = "Reds",direction = 1)
 ```
   
-## Heatmap by date
+## Heatmap cc_data by day and hour
 ```{r}
-plot_day <- cc_data_wkday %>% 
+plot_day <- cc_data%>% 
   group_by(location,day,hour,) %>% 
   summarise(n = n()) %>% 
   ungroup() 
 
-full_df_day <- expand.grid(location = unique(cc_data_wkday$location),
-                       day = unique(cc_data_wkday$day),
+full_df_day <- expand.grid(location = unique(cc_data$location),
+                       day = unique(cc_data$day),
                        hour = c(1:23))
 
 plot_full_day <- plot_day %>% 
@@ -253,7 +260,7 @@ geom_tile(color = 'white',size = 0.1) +
 pd
 ```
 
-## Heatmap car
+## Heatmap car by hour and day
 ```{r}
 car_data <- car %>% 
   group_by(day,hour) %>% 
@@ -274,6 +281,57 @@ plot_full_car <- car_data %>%
 
 ggplot(plot_full_car, aes(hour,day,fill = n)) + 
 geom_tile(color = 'white',size = 0.1) + 
-   scale_fill_distiller(palette = "Reds",direction = 1)
+   scale_fill_distiller(palette = "Green",direction = 1)
 
 ```
+
+
+Map
+
+```{r}
+bgmap <- raster("D:/ISSS608 Data Visualization/MC2/MC2/MC2-tourist.tif")
+
+tm_shape(bgmap) +
+tm_rgb(bgmap, r = 1,g = 2,b = 3,
+       alpha = NA,
+       saturation = 1,
+       interpolate = TRUE,
+       max.value = 255)
+
+Abila_st <- st_read(dsn = "D:/ISSS608 Data Visualization/MC2/MC2/Geospatial",
+                    layer = "Abila")
+
+gps <- read_csv("D:/ISSS608 Data Visualization/MC2/MC2/gps.csv")
+
+glimpse(gps)
+
+gps$Timestamp <- date_time_parse(gps$Timestamp,
+                zone = "",
+                format = "%m/%d/%Y %H:%M:%S")
+
+gps$day <- as.factor(get_day(gps$Timestamp))
+
+gps_sf <- st_as_sf(gps, 
+                   coords = c("long", "lat"),
+                       crs= 4326)
+
+gps_path <- gps_sf %>%
+  group_by(id, day) %>%
+  summarize(m = mean(Timestamp), 
+            do_union=FALSE) %>%
+  st_cast("LINESTRING")
+```
+
+```{r}
+gps_path_selected <- gps_path %>% 
+  filter(id==35)
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_selected) + tm_lines()
+```
+
