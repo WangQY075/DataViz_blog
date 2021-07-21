@@ -132,9 +132,6 @@ glimpse(sum_by_location)
 ```
 
 
-
-
-
 # the most popular locations
 ## Bar chart cc_data by totalcount
 ```{r}
@@ -143,10 +140,37 @@ cc_bar_chart <- cc_data %>%
   summarise(n = n()) %>% 
   ungroup()
 
+oldvalues <- c("Abila Airport","Abila Scrapyard","Abila Zacharo",
+               "Ahaggo Museum","Albert's Fine Clothing",
+                "Bean There Done That","Brew've Been Served",
+               "Brewed Awakenings","Carlyle Chemical Inc.",
+               "Chostus Hotel","Coffee Cameleon","Coffee Shack",
+               "Desafio Golf Course","Frank's Fuel",
+               "Frydos Autosupply n' More","Gelatogalore",
+               "General Grocer","Guy's Gyros","Hallowed Grounds",
+               "Hippokampos","Jack's Magical Beans","Kalami Kafenion",
+               "Katerina’s Café","Kronos Mart","Kronos Pipe and Irrigation",
+               "Maximum Iron and Steel","Nationwide Refinery",
+               "Octavio's Office Supplies","Ouzeri Elian",
+               "Roberts and Sons","Shoppers' Delight",
+               "Stewart and Sons Fabrication","U-Pump")
+newvalues <- factor(c("Business","Business","Unknown",
+                      "Living","Living","Unknown","Dinning",
+                      "Unknown","Business","Living","Dinning",
+                      "Dinning","Living","Unknown","Unknown",
+                      "Dinning","Living","Dinning","Dinning",
+                      "Living","Living","Unknown","Dinning",
+                      "Living","Business","Business","Business",
+                      "Business","Unknown","Business","Living",
+                      "Business","Unknown"
+                      ))  # Make this a factor
+
+cc_bar_chart$type <- newvalues[ match(cc_bar_chart$location, oldvalues) ]
+
+
 p <- ggplot(cc_bar_chart,aes(x = reorder(location,-n), 
-                             y = n)) + 
-  geom_col(color="black", 
-           fill="light blue") + 
+                             y = n,fill = type)) + 
+  geom_col(color="black") + 
   theme(axis.text.x = element_text(angle = 90, 
                                    hjust = 1, 
                                    vjust = .5))
@@ -174,10 +198,39 @@ loyalty_bar_chart <- loyalty_data %>%
   summarise(n = n()) %>% 
   ungroup()
 
+oldvalues <- c("Abila Airport","Abila Scrapyard","Abila Zacharo",
+               "Ahaggo Museum","Albert's Fine Clothing",
+                "Bean There Done That","Brew've Been Served",
+               "Brewed Awakenings","Carlyle Chemical Inc.",
+               "Chostus Hotel","Coffee Cameleon","Coffee Shack",
+               "Desafio Golf Course","Frank's Fuel",
+               "Frydos Autosupply n' More","Gelatogalore",
+               "General Grocer","Guy's Gyros","Hallowed Grounds",
+               "Hippokampos","Jack's Magical Beans","Kalami Kafenion",
+               "Katerina’s Café","Kronos Mart","Kronos Pipe and Irrigation",
+               "Maximum Iron and Steel","Nationwide Refinery",
+               "Octavio's Office Supplies","Ouzeri Elian",
+               "Roberts and Sons","Shoppers' Delight",
+               "Stewart and Sons Fabrication","U-Pump")
+newvalues <- factor(c("Business","Business","Unknown",
+                      "Living","Living","Unknown","Dinning",
+                      "Unknown","Business","Living","Dinning",
+                      "Dinning","Living","Unknown","Unknown",
+                      "Dinning","Living","Dinning","Dinning",
+                      "Living","Living","Unknown","Dinning",
+                      "Living","Business","Business","Business",
+                      "Business","Unknown","Business","Living",
+                      "Business","Unknown"
+                      ))  # Make this a factor
+
+loyalty_bar_chart$type <- newvalues[ match(loyalty_bar_chart$location, oldvalues) ]
+
+
+
+  
 p2 <- ggplot(loyalty_bar_chart,aes(x = reorder(location,-n), 
-                             y = n)) + 
-  geom_col(color="black", 
-           fill="light blue") + 
+                             y = n,fill = type)) + 
+  geom_col(color="black") + 
   theme(axis.text.x = element_text(angle = 90, 
                                    hjust = 1, 
                                    vjust = .5))
