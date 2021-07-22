@@ -27,7 +27,7 @@ knitr::opts_chunk$set(echo = TRUE,
 ```{r}
 packages = c('raster', 'sf', 
              'tmap', 'clock', 
-             'tidyverse','ggplot2','ggraph',
+             'tidyverse','ggplot2','ggiraph',
              'lubridate','ggthemes','viridis','plotly','treemapify','sf',
              'raster','readr','tmap','mapview')
 for (p in packages){
@@ -65,7 +65,17 @@ cc_data$last4ccnum <- as.character(cc_data$last4ccnum)
 
 cc_data <- cc_data %>% 
   group_by(location) %>% 
-  mutate(total_price = sum(price)) %>% 
+  mutate(total_price_location = sum(price)) %>% 
+  ungroup()
+
+cc_data <- cc_data %>% 
+  group_by(last4ccnum,location) %>% 
+  mutate(total_price_loccnum = sum(price)) %>% 
+  ungroup()
+
+cc_data <- cc_data %>% 
+  group_by(last4ccnum) %>% 
+  mutate(total_price_ccnum = sum(price)) %>% 
   ungroup()
 
 ```
@@ -85,7 +95,17 @@ loyalty_data$day <- day(loyalty_data$dmy)
 
 loyalty_data <- loyalty_data %>% 
   group_by(location) %>% 
-  mutate(total_price = sum(price)) %>% 
+  mutate(total_price_location = sum(price)) %>% 
+  ungroup()
+
+loyalty_data <- loyalty_data %>% 
+  group_by(loyaltynum,location) %>% 
+  mutate(total_price_lolynum = sum(price)) %>% 
+  ungroup()
+
+loyalty_data <- loyalty_data %>% 
+  group_by(loyaltynum) %>% 
+  mutate(total_price_lynum = sum(price)) %>% 
   ungroup()
 
 ```
@@ -104,33 +124,66 @@ car$hour <- hour(car$dmy_hm)
 
 ## join cc_data loyalty data
 ```{r}
-joint_cc_loyalty = cc_data%>% inner_join(loyalty_data,
-                                          by=c('location','price','day','weekday'))
-
+joint_cc_loyalty = cc_data %>% inner_join(loyalty_data,
+                                          by=c('location','price','day'))
 sum_by_location <- joint_cc_loyalty %>%
 select(location, price) %>%
 group_by(location) %>%
 summarise(total_price = sum(price), total_count = n()) %>%
 arrange(desc(total_count), desc(total_price))
 
-sum_by_location_cc <- cc_data %>%
-select(location, price) %>%
-group_by(location) %>%
-summarise(total_price = sum(price), total_count = n()) %>%
-arrange(desc(total_count), desc(total_price))
+colnames(joint_cc_loyalty)[1] <- "timestamp"
 
-sum_by_location_loyalty <- loyalty_data %>%
-select(location, price) %>%
-group_by(location) %>%
-summarise(total_price = sum(price), total_count = n()) %>%
-arrange(desc(total_count), desc(total_price))
+new_cc_data <- merge(cc_data, joint_cc_loyalty,
+                              by=c('timestamp','location','price','last4ccnum'),all=TRUE)
+
+write.csv(new_cc_data, file = "D:/new_cc_data1.csv", row.names = FALSE)
+
+new_cc_data <- new_cc_data %>% mutate(id = row_number())
 
 
+new_cc_data<- new_cc_data[-c(507,683,674,497,513,488), ]
 
-glimpse(sum_by_location)
+glimpse(new_cc_data)
+
+write.csv(new_cc_data, file = "D:/new_cc_data3.csv", row.names = FALSE)
 
 ```
 
+
+# cc-card number total price by location
+
+```{r}
+
+
+ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
+  geom_tile(color = 'white',size = 0.1)+
+  scale_fill_distiller(palette = "Green",direction = 1)+
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1, 
+                                   vjust = .5))
+```
+
+## ccnum-bar chart 
+```{r}
+ggplot(cc_data,aes(x = last4ccnum,y = total_price_ccnum))+
+  geom_col(fill = "lightblue") + 
+  ylim(0, 42514.25)+
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1, 
+                                   vjust = .5))
+```
+
+
+#loyalty-card number frequency and total price
+```{r}
+ggplot(loyalty_data,aes(x = loyaltynum,y = location,fill = total_price_lynum))+
+  geom_tile(color = 'white',size = 0.1)+
+  scale_fill_distiller(palette = "Green",direction = 1)+
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1, 
+                                   vjust = .5))
+```
 
 # the most popular locations
 ## Bar chart cc_data by totalcount
@@ -184,12 +237,13 @@ ggplotly(p)
 
 
 ## Treemap cc_data by total count and total price
+
 ```{r}
 ggplot(sum_by_location_cc, aes(area = total_count, fill = total_price, label = location)) +
   geom_treemap(palette = "Set2", type="index") +
-  geom_treemap_text(fontface = "italic", colour = "white", place = "centre",
-                    grow = TRUE)
+  geom_treemap_text(fontface = "italic", colour = "white", place = "centre",grow = TRUE)
 ```
+
 
 ## Bar chart loyalty_data by total count
 ```{r}
@@ -281,6 +335,7 @@ pwk<- ggplot(plot_full, aes(hour, weekday, fill = n)) +
 geom_tile(color = 'white',size = 0.1) + 
   facet_grid(~location) +
    scale_fill_distiller(palette = "Reds",direction = 1)
+pwk
 ```
   
 ## Heatmap cc_data by day and hour
