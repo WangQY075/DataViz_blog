@@ -236,13 +236,7 @@ ggplotly(p)
 ```
 
 
-## Treemap cc_data by total count and total price
 
-```{r}
-ggplot(sum_by_location_cc, aes(area = total_count, fill = total_price, label = location)) +
-  geom_treemap(palette = "Set2", type="index") +
-  geom_treemap_text(fontface = "italic", colour = "white", place = "centre",grow = TRUE)
-```
 
 
 ## Bar chart loyalty_data by total count
@@ -296,18 +290,9 @@ ggplotly(p2)
 
 ```
 
-## Price box plot cc_card
-```{r}
-ggplot(cc_data, aes(x=price, y=reorder(location,total_price))) + 
-  geom_boxplot(outlier.colour="tan1")
-```
 
-## Price box plot loyalty data
-```{r}
-ggplot(loyalty_data, aes(x=price, y=reorder(location,total_price))) + 
-  geom_boxplot(outlier.colour="tan1")
 
-```
+
 
 # - when they are popular?
 ## Heatmap  cc data by weekday and hour
