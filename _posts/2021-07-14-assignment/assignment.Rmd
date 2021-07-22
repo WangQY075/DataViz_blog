@@ -12,6 +12,7 @@ output:
     toc: true
     toc_float: true
     self_contained: false
+    code_folding: TRUE
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,
@@ -21,9 +22,23 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE)
 ```
 
+# BACKGROUND
+
+# LITERATURE REVIEW
+
+# METHODOLOGY & DATA PREPARATION
+
+The packages using for this Assignment shows below:
+
+No.|Packages|Function
+---|--------|---------
+1  |tidyverse|Data cleaning and manipulation 
+2  |ggplot2  |ggplot2 is a system for declaratively creating graphics
+3  |ggiraph  |ggiraph is a tool that allows you to create dynamic ggplot graphs.
+4  |lubridate,clock |WWWW
 
 
-# Library Packages
+### Library Packages
 ```{r}
 packages = c('raster', 'sf', 
              'tmap', 'clock', 
@@ -38,7 +53,8 @@ for (p in packages){
 }
 ```
 
-# Import data
+### Import data
+
 ```{r}
 cc_data<- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')
 
@@ -47,7 +63,8 @@ loyalty_data <- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv
 car <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/gps.csv')
 ```
 
-# Data parperation-cc_data
+### Data Parperation: cc_data
+
 ```{r}
 cc_data$dmy_hm <- date_time_parse(cc_data$timestamp,
                 zone = "",
@@ -80,7 +97,8 @@ cc_data <- cc_data %>%
 
 ```
 
-#data parperation loyalty_data
+#### Data Parperation: loyalty_data
+
 ```{r}
 
 loyalty_data$dmy<- date_time_parse(loyalty_data$timestamp,
@@ -110,7 +128,7 @@ loyalty_data <- loyalty_data %>%
 
 ```
 
-#data parperation car_data
+#### Data Parperation: car_data
 ```{r}
 car$dmy_hm <- date_time_parse(car$Timestamp,
                 zone = "",
@@ -122,7 +140,7 @@ car$hour <- hour(car$dmy_hm)
 
 ```
 
-## join cc_data loyalty data
+### Match credit card and loyatly card record
 ```{r}
 joint_cc_loyalty = cc_data %>% inner_join(loyalty_data,
                                           by=c('location','price','day'))
@@ -142,11 +160,11 @@ write.csv(new_cc_data, file = "D:/new_cc_data1.csv", row.names = FALSE)
 new_cc_data <- new_cc_data %>% mutate(id = row_number())
 
 
-new_cc_data<- new_cc_data[-c(507,683,674,497,513,488), ]
+new_cc_data<- new_cc_data[-c(507,683,674,497,513,488), ] %>% 
+  select(timestamp,location,last4ccnum,loyaltynum,price)
 
 glimpse(new_cc_data)
 
-write.csv(new_cc_data, file = "D:/new_cc_data3.csv", row.names = FALSE)
 
 ```
 
@@ -154,8 +172,6 @@ write.csv(new_cc_data, file = "D:/new_cc_data3.csv", row.names = FALSE)
 # cc-card number total price by location
 
 ```{r}
-
-
 ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
   geom_tile(color = 'white',size = 0.1)+
   scale_fill_distiller(palette = "Green",direction = 1)+
@@ -185,8 +201,9 @@ ggplot(loyalty_data,aes(x = loyaltynum,y = location,fill = total_price_lynum))+
                                    vjust = .5))
 ```
 
-# the most popular locations
-## Bar chart cc_data by totalcount
+
+## Bar chart: Frequnecy of Credit Card by Location
+
 ```{r}
 cc_bar_chart <- cc_data %>% 
   group_by(location) %>% 
@@ -228,7 +245,7 @@ p <- ggplot(cc_bar_chart,aes(x = reorder(location,-n),
                                    hjust = 1, 
                                    vjust = .5))
 
-p <- p + ggtitle("Location by frequen cc") + 
+p <- p + ggtitle("Frequnecy of Credit Card by Location") + 
         labs(y="Frequency", x = "Location")
 
 ggplotly(p)
@@ -239,7 +256,7 @@ ggplotly(p)
 
 
 
-## Bar chart loyalty_data by total count
+## Bar chart:Frequnecy of Loyalty Card by Location
 ```{r}
 loyalty_bar_chart <- loyalty_data %>% 
   group_by(location) %>% 
@@ -292,8 +309,6 @@ ggplotly(p2)
 
 
 
-
-
 # - when they are popular?
 ## Heatmap  cc data by weekday and hour
 ```{r}
@@ -313,7 +328,8 @@ plot_full <- plot %>%
   ) %>% 
   mutate(hour = as.ordered(hour)) %>% 
   replace_na(list(n = 0L)) %>% 
-  filter(location %in% c('Katerina’s Café'))
+  filter(location %in% c("Katerina’s Café","Hippokampos",
+                          "Ouzeri Elian","Abila Airport"))
 
 
 pwk<- ggplot(plot_full, aes(hour, weekday, fill = n)) + 
@@ -342,7 +358,8 @@ plot_full_day <- plot_day %>%
   mutate(hour = as.ordered(hour)) %>% 
   mutate(day = as.ordered(day)) %>% 
   replace_na(list(n = 0L)) %>% 
-  filter(location %in% c('Katerina’s Café'))
+  filter(location %in% c("Katerina’s Café","Hippokampos",
+                          "Ouzeri Elian","Abila Airport"))
 
 
 pd <- ggplot(plot_full_day, aes(hour, day, fill = n)) + 
