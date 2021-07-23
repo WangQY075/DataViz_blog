@@ -43,11 +43,11 @@ No.|Packages|Function
 
 ### Library Packages
 ```{r}
-packages = c('raster', 'sf', 
-             'tmap', 'clock', 
+packages = c('tmap', 'clock', 
              'tidyverse','ggplot2','ggiraph',
              'lubridate','ggthemes','viridis','plotly','treemapify','sf',
-             'raster','readr','tmap','mapview')
+             'raster','readr','tmap','mapview'
+             )
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -406,42 +406,68 @@ geom_tile(color = 'white',size = 0.1) +
 Map
 
 ```{r}
-bgmap <- raster("D:/ISSS608 Data Visualization/MC2/MC2/MC2-tourist.tif")
-
-tm_shape(bgmap) +
-tm_rgb(bgmap, r = 1,g = 2,b = 3,
-       alpha = NA,
-       saturation = 1,
-       interpolate = TRUE,
-       max.value = 255)
-
-Abila_st <- st_read(dsn = "D:/ISSS608 Data Visualization/MC2/MC2/Geospatial",
-                    layer = "Abila")
-
-gps <- read_csv("D:/ISSS608 Data Visualization/MC2/MC2/gps.csv")
-
-glimpse(gps)
-
-gps$Timestamp <- date_time_parse(gps$Timestamp,
-                zone = "",
-                format = "%m/%d/%Y %H:%M:%S")
-
-gps$day <- as.factor(get_day(gps$Timestamp))
-
-gps_sf <- st_as_sf(gps, 
-                   coords = c("long", "lat"),
-                       crs= 4326)
-
-gps_path <- gps_sf %>%
-  group_by(id, day) %>%
-  summarize(m = mean(Timestamp), 
-            do_union=FALSE) %>%
-  st_cast("LINESTRING")
+bgmap <- raster('D:/ISSS608 Data Visualization/MC2/MC2/Geospatial/MC2-tourist.tif')
+bgmap
 ```
 
 ```{r}
+tmap_mode('plot')
+tm_shape(bgmap) +
+  tm_raster(bgmap,
+            legend.show = FALSE)
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255)
+        
+```
+
+```{r}
+Ablia_st <- st_read(dsn = "D:/ISSS608 Data Visualization/MC2/MC2/Geospatial",
+                    layer = 'Abila')
+```
+
+## Improting Aspatial Data
+```{r}
+gps <- read_csv("D:/ISSS608 Data Visualization/MC2/MC2/gps.csv")
+glimpse(gps)
+```
+
+## Converting Date-Time Field
+```{r}
+gps$Timestamp <- date_time_parse(gps$Timestamp,
+                                 zone = "",
+                                 format = "%m/%d/%Y %H:%M:%S")
+gps$id <- as_factor(gps$id) 
+```
+
+## converting aspatial data into a simple feature data frame
+```{r}
+gps_sf <- st_as_sf(gps,
+                   coords = c("long","lat"),
+                   crs = 4326)
+```
+
+# creating movement path from GPS Points
+```{r}
+gps_path <- gps_sf %>%
+  group_by(id) %>% 
+  summarize(m = mean(Timestamp), ### have problems here
+            do_union = FALSE) %>%  
+  st_cast("LINESTRING")
+#summarie part is meaningless. need this part is only because group_by must have some calculation. but what we really want to do is just group data by id#
+```
+
+## plotting the gps paths
+```{r}
 gps_path_selected <- gps_path %>% 
-  filter(id==35)
+  filter(id==1)
 tmap_mode("view")
 tm_shape(bgmap) +
   tm_rgb(bgmap, r = 1,g = 2,b = 3,
@@ -451,4 +477,6 @@ tm_shape(bgmap) +
          max.value = 255) +
   tm_shape(gps_path_selected) + tm_lines()
 ```
+
+
 
