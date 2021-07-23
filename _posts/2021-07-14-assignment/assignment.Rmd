@@ -23,6 +23,9 @@ knitr::opts_chunk$set(echo = TRUE,
 ```
 
 # BACKGROUND
+In January 2014, the leaders of GAStech are celebrating their new-found fortune as a result of the initial public offering of their very successful company. In the midst of this celebration, several employees of GAStech go missing.
+
+In Mini-Challenge 2,we will analysis GAStech’s company cars gps records, credit card transactions and loyalty card usage data. From this data, we will identify anomalies and suspicious behaviors and identify which people use which credit and loyalty cards. All questions will be responsed by using visual analysis.
 
 # LITERATURE REVIEW
 
@@ -35,7 +38,7 @@ No.|Packages|Function
 1  |tidyverse|Data cleaning and manipulation 
 2  |ggplot2  |ggplot2 is a system for declaratively creating graphics
 3  |ggiraph  |ggiraph is a tool that allows you to create dynamic ggplot graphs.
-4  |lubridate,clock |WWWW
+4  |lubridate,clock |
 
 
 ### Library Packages
@@ -63,8 +66,8 @@ loyalty_data <- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv
 car <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/gps.csv')
 ```
 
-### Data Parperation: cc_data
-
+### Data Preparation: cc_data
+Before any analysis, we first prepared 
 ```{r}
 cc_data$dmy_hm <- date_time_parse(cc_data$timestamp,
                 zone = "",
@@ -97,7 +100,7 @@ cc_data <- cc_data %>%
 
 ```
 
-#### Data Parperation: loyalty_data
+#### Data Preparation: loyalty_data
 
 ```{r}
 
@@ -128,7 +131,7 @@ loyalty_data <- loyalty_data %>%
 
 ```
 
-#### Data Parperation: car_data
+#### Data Preparation: car_data
 ```{r}
 car$dmy_hm <- date_time_parse(car$Timestamp,
                 zone = "",
@@ -175,16 +178,6 @@ glimpse(new_cc_data)
 ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
   geom_tile(color = 'white',size = 0.1)+
   scale_fill_distiller(palette = "Green",direction = 1)+
-  theme(axis.text.x = element_text(angle = 90, 
-                                   hjust = 1, 
-                                   vjust = .5))
-```
-
-## ccnum-bar chart 
-```{r}
-ggplot(cc_data,aes(x = last4ccnum,y = total_price_ccnum))+
-  geom_col(fill = "lightblue") + 
-  ylim(0, 42514.25)+
   theme(axis.text.x = element_text(angle = 90, 
                                    hjust = 1, 
                                    vjust = .5))
@@ -284,7 +277,7 @@ newvalues <- factor(c("Business","Business","Unknown",
                       "Dinning","Living","Dinning","Dinning",
                       "Living","Living","Unknown","Dinning",
                       "Living","Business","Business","Business",
-                      "Business","Unknown","Business","Living",
+                      "Business","Dinning","Business","Living",
                       "Business","Unknown"
                       ))  # Make this a factor
 
@@ -306,6 +299,20 @@ p2 <- p2 + ggtitle("Location by frequency loyalty") +
 ggplotly(p2)
 
 ```
+
+## Price box plot cc_card
+```{r}
+ggplot(cc_data, aes(x=price, y=reorder(location,total_price_location))) + 
+  geom_boxplot(outlier.colour="tan1")
+```
+
+## Price box plot loyalty data
+```{r}
+g <- ggplot(loyalty_data,aes(x=price,
+                             y=reorder(location,total_price_location)))
+
+```
+
 
 
 
@@ -329,7 +336,7 @@ plot_full <- plot %>%
   mutate(hour = as.ordered(hour)) %>% 
   replace_na(list(n = 0L)) %>% 
   filter(location %in% c("Katerina’s Café","Hippokampos",
-                          "Ouzeri Elian","Abila Airport"))
+                          "Abila Airport","Abila Zacharo"))
 
 
 pwk<- ggplot(plot_full, aes(hour, weekday, fill = n)) + 
