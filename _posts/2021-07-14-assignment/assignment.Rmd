@@ -29,6 +29,8 @@ In Mini-Challenge 2,we will analysis GAStech’s company cars gps records, credi
 
 # LITERATURE REVIEW
 
+The same dataset have been used in 2014 VAST Challenge
+
 # METHODOLOGY & DATA PREPARATION
 
 The packages using for this Assignment shows below:
@@ -41,7 +43,7 @@ No.|Packages|Function
 4  |lubridate,clock |
 
 
-### Library Packages
+## Library Packages
 ```{r}
 packages = c('tmap', 'clock', 
              'tidyverse','ggplot2','ggiraph',
@@ -56,7 +58,7 @@ for (p in packages){
 }
 ```
 
-### Import data
+## Import data
 
 ```{r}
 cc_data<- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')
@@ -64,10 +66,15 @@ cc_data<- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')
 loyalty_data <- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/loyalty_data.csv')
 
 car <- read_csv('D:/ISSS608 Data Visualization/MC2/MC2/gps.csv')
+
+glimpse(cc_data)
+glimpse(loyalty_data)
 ```
 
-### Data Preparation: cc_data
-Before any analysis, we first prepared 
+## Data Preparation: cc_data
+
+Before any analysis, we first prepared cc_data and loyalty card. We find timestamp is treated as "Character"" data type instead of date data type. We correct this by using lubridate package. Then separate timestamp into day, weekday for further analysis. Change the “Last4num” datatype from int to chr. Then calculate the total price by location, card number ,card number and locations, respectively.
+
 ```{r}
 cc_data$dmy_hm <- date_time_parse(cc_data$timestamp,
                 zone = "",
@@ -100,7 +107,7 @@ cc_data <- cc_data %>%
 
 ```
 
-#### Data Preparation: loyalty_data
+## Data Preparation: loyalty_data
 
 ```{r}
 
@@ -131,7 +138,7 @@ loyalty_data <- loyalty_data %>%
 
 ```
 
-#### Data Preparation: car_data
+## Data Preparation: car_data
 ```{r}
 car$dmy_hm <- date_time_parse(car$Timestamp,
                 zone = "",
@@ -143,59 +150,9 @@ car$hour <- hour(car$dmy_hm)
 
 ```
 
-### Match credit card and loyatly card record
-```{r}
-joint_cc_loyalty = cc_data %>% inner_join(loyalty_data,
-                                          by=c('location','price','day'))
-sum_by_location <- joint_cc_loyalty %>%
-select(location, price) %>%
-group_by(location) %>%
-summarise(total_price = sum(price), total_count = n()) %>%
-arrange(desc(total_count), desc(total_price))
+# Question 1
 
-colnames(joint_cc_loyalty)[1] <- "timestamp"
-
-new_cc_data <- merge(cc_data, joint_cc_loyalty,
-                              by=c('timestamp','location','price','last4ccnum'),all=TRUE)
-
-write.csv(new_cc_data, file = "D:/new_cc_data1.csv", row.names = FALSE)
-
-new_cc_data <- new_cc_data %>% mutate(id = row_number())
-
-
-new_cc_data<- new_cc_data[-c(507,683,674,497,513,488), ] %>% 
-  select(timestamp,location,last4ccnum,loyaltynum,price)
-
-glimpse(new_cc_data)
-
-
-```
-
-
-# cc-card number total price by location
-
-```{r}
-ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
-  geom_tile(color = 'white',size = 0.1)+
-  scale_fill_distiller(palette = "Green",direction = 1)+
-  theme(axis.text.x = element_text(angle = 90, 
-                                   hjust = 1, 
-                                   vjust = .5))
-```
-
-
-#loyalty-card number frequency and total price
-```{r}
-ggplot(loyalty_data,aes(x = loyaltynum,y = location,fill = total_price_lynum))+
-  geom_tile(color = 'white',size = 0.1)+
-  scale_fill_distiller(palette = "Green",direction = 1)+
-  theme(axis.text.x = element_text(angle = 90, 
-                                   hjust = 1, 
-                                   vjust = .5))
-```
-
-
-## Bar chart: Frequnecy of Credit Card by Location
+First, we look at cc card and loyalty card separately. For all location, we segment them into four groups: Business Dinning Living and Unknown. Through this bar chart we observed that the most popular place for each group is Katerina’s Café, Hippokampos, Abila Airport and Ouzeri Elian. Overall Katerina’s Café is the most popular place and have been visit more than 200 times. Because of the relationship between credit card and loyalty card, loyalty card records give us the same result. 
 
 ```{r}
 cc_bar_chart <- cc_data %>% 
@@ -245,79 +202,8 @@ ggplotly(p)
 
 ```
 
+Then we plot heatmaps by weekday and hour of each day for the most popular location. Abila Airport’s records mainly in workday between 8:00 to 16:00. Th popular time of Katerina’s Café and Hippokampos in 12:00 to 13:00 and 18:00 and 20:00. Those are the time period when employee have their lunch break or off office.  The most popular time for Abila Zacharo is 12:00-13:00.
 
-
-
-
-## Bar chart:Frequnecy of Loyalty Card by Location
-```{r}
-loyalty_bar_chart <- loyalty_data %>% 
-  group_by(location) %>% 
-  summarise(n = n()) %>% 
-  ungroup()
-
-oldvalues <- c("Abila Airport","Abila Scrapyard","Abila Zacharo",
-               "Ahaggo Museum","Albert's Fine Clothing",
-                "Bean There Done That","Brew've Been Served",
-               "Brewed Awakenings","Carlyle Chemical Inc.",
-               "Chostus Hotel","Coffee Cameleon","Coffee Shack",
-               "Desafio Golf Course","Frank's Fuel",
-               "Frydos Autosupply n' More","Gelatogalore",
-               "General Grocer","Guy's Gyros","Hallowed Grounds",
-               "Hippokampos","Jack's Magical Beans","Kalami Kafenion",
-               "Katerina’s Café","Kronos Mart","Kronos Pipe and Irrigation",
-               "Maximum Iron and Steel","Nationwide Refinery",
-               "Octavio's Office Supplies","Ouzeri Elian",
-               "Roberts and Sons","Shoppers' Delight",
-               "Stewart and Sons Fabrication","U-Pump")
-newvalues <- factor(c("Business","Business","Unknown",
-                      "Living","Living","Unknown","Dinning",
-                      "Unknown","Business","Living","Dinning",
-                      "Dinning","Living","Unknown","Unknown",
-                      "Dinning","Living","Dinning","Dinning",
-                      "Living","Living","Unknown","Dinning",
-                      "Living","Business","Business","Business",
-                      "Business","Dinning","Business","Living",
-                      "Business","Unknown"
-                      ))  # Make this a factor
-
-loyalty_bar_chart$type <- newvalues[ match(loyalty_bar_chart$location, oldvalues) ]
-
-
-
-  
-p2 <- ggplot(loyalty_bar_chart,aes(x = reorder(location,-n), 
-                             y = n,fill = type)) + 
-  geom_col(color="black") + 
-  theme(axis.text.x = element_text(angle = 90, 
-                                   hjust = 1, 
-                                   vjust = .5))
-
-p2 <- p2 + ggtitle("Location by frequency loyalty") + 
-        labs(y="Frequency", x = "Location")
-
-ggplotly(p2)
-
-```
-
-## Price box plot cc_card
-```{r}
-ggplot(cc_data, aes(x=price, y=reorder(location,total_price_location))) + 
-  geom_boxplot(outlier.colour="tan1")
-```
-
-## Price box plot loyalty data
-```{r}
-g <- ggplot(loyalty_data,aes(x=price,
-                             y=reorder(location,total_price_location)))
-
-```
-
-
-
-
-# - when they are popular?
-## Heatmap  cc data by weekday and hour
 ```{r}
 plot <- cc_data%>% 
   group_by(location,weekday,hour,) %>% 
@@ -345,36 +231,39 @@ geom_tile(color = 'white',size = 0.1) +
    scale_fill_distiller(palette = "Reds",direction = 1)
 pwk
 ```
-  
-## Heatmap cc_data by day and hour
+
+## Anomalies-1
+
+One Anomaly is credit card record and loyalty card record not match. According to the background information, loyalty cards records are collecting from employee’s credit card purchases and preferences records. Loyalty card records should match credit card records. However, cc_data has total 1490 rows and loyalty_data only include 1392 rows. This phenomenon hints us for some transaction, customer didn’t use loyalty card for discounts and rewards. Further dig the data, we also find, on the opposite, some customer using loyalty card but didn’t have credit card records. This kind of record happened in Stewart and Sons Fabrication and Carlyle Chemical Inc. One possible reason is those transaction is not paid by credit card. 
+
+{picture}
+
+One way to correct this is to find a whole transaction records by join cc_data and loyalty_data on Location, Price and Date. Because timestamp in cc_data have detailed time when transaction happened, some records happened in same location, price and data may have error. After manual remove the mismatched information, we get a new dataset include 1490 rows. 
+
+
+## Anomalies-2
+
+The box plot blow shows us several information. First, Top locations of total transaction price are business relative place or company. Second, some locations have transaction records extremely higher than normal. 
+
 ```{r}
-plot_day <- cc_data%>% 
-  group_by(location,day,hour,) %>% 
-  summarise(n = n()) %>% 
-  ungroup() 
+ggplot(cc_data, aes(x=price, y=reorder(location,total_price_location))) + 
+  geom_boxplot(outlier.colour="tan1")
+```
 
-full_df_day <- expand.grid(location = unique(cc_data$location),
-                       day = unique(cc_data$day),
-                       hour = c(1:23))
+Dig deeper into those transaction’s card number and price spend. We find some suspicious phenomenon:
+9551 13th $10000 extremely large amount of purchase compare with other purchase records happened in Frydos Autosupply n' More and 9551’s other transaction. This is the only record for 9551 in this location. 
 
-plot_full_day <- plot_day %>% 
-  right_join(
-    full_df_day,
-    by = c('location','day','hour') 
-  ) %>% 
-  mutate(hour = as.ordered(hour)) %>% 
-  mutate(day = as.ordered(day)) %>% 
-  replace_na(list(n = 0L)) %>% 
-  filter(location %in% c("Katerina’s Café","Hippokampos",
-                          "Ouzeri Elian","Abila Airport"))
+5010 18th $600 extremely large amount of purchase compare with other purchase records happened in Chostus Hotel. This is the only record for 5010 in this location.Date is close to when kidnap happened.
 
+1321 17th $1239 extremely large amount of purchase compare with other purchase records happened in Albert's Fine Clothing and 1321’s other transaction. This is the only record for 1321 in this location. Date is close to when kidnap happened.
 
-pd <- ggplot(plot_full_day, aes(hour, day, fill = n)) + 
-geom_tile(color = 'white',size = 0.1) + 
-  facet_grid(~location) +
-   scale_fill_distiller(palette = "Reds",direction = 1)
-
-pd
+```{r}
+ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
+  geom_tile(color = 'white',size = 0.1)+
+  scale_fill_distiller(palette = "Green",direction = 1)+
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1, 
+                                   vjust = .5))
 ```
 
 ## Heatmap car by hour and day
@@ -401,9 +290,6 @@ geom_tile(color = 'white',size = 0.1) +
    scale_fill_distiller(palette = "Green",direction = 1)
 
 ```
-
-
-Map
 
 ```{r}
 bgmap <- raster('D:/ISSS608 Data Visualization/MC2/MC2/Geospatial/MC2-tourist.tif')
@@ -467,7 +353,7 @@ gps_path <- gps_sf %>%
 ## plotting the gps paths
 ```{r}
 gps_path_selected <- gps_path %>% 
-  filter(id==1)
+  filter(id %in% c(31))
 tmap_mode("view")
 tm_shape(bgmap) +
   tm_rgb(bgmap, r = 1,g = 2,b = 3,
@@ -478,5 +364,26 @@ tm_shape(bgmap) +
   tm_shape(gps_path_selected) + tm_lines()
 ```
 
+```{r}
+car$id <- as.factor(car$id)
+
+car_data <- car %>% 
+  group_by(id,day) %>% 
+  summarise(n = n()) %>% 
+  ungroup() 
+ggplot(car_data,aes(x = day,y = id,fill = n)) + geom_tile()+
+  scale_fill_distiller(palette = "blue",direction = 1)
 
 
+```
+
+```{r}
+car$id <- as.character(car$id)
+
+car_data <- car %>% 
+  group_by(id,hour) %>% 
+  summarise(n = n()) %>% 
+  ungroup() 
+ggplot(car_data,aes(x = hour,y = id,fill = n)) + geom_tile()+
+  scale_fill_distiller(palette = "Blue",direction = 1)
+```
