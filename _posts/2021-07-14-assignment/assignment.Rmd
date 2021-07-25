@@ -257,6 +257,8 @@ Dig deeper into those transaction’s card number and price spend. We find some 
 
 1321 17th $1239 extremely large amount of purchase compare with other purchase records happened in Albert's Fine Clothing and 1321’s other transaction. This is the only record for 1321 in this location. Date is close to when kidnap happened.
 
+Below heatmap shows total transaction price by location by credit card number. Next step, we will add gps data in further explore the suspicious phenomenon and find the owner of credit card.
+
 ```{r}
 ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
   geom_tile(color = 'white',size = 0.1)+
@@ -266,7 +268,10 @@ ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
                                    vjust = .5))
 ```
 
-## Heatmap car by hour and day
+# Question 2
+
+Looking at gps data only, first we find the rush period is Mon-Fri morning 7:00 to 8:00, Noon 12:00 to 13:00 and afternoon 17:00 to 18:00. We also find there are unusual gps records at 3am in 7th ,9th ,11th and 14th. 
+
 ```{r}
 car_data <- car %>% 
   group_by(day,hour) %>% 
@@ -290,80 +295,6 @@ geom_tile(color = 'white',size = 0.1) +
    scale_fill_distiller(palette = "Green",direction = 1)
 
 ```
-
-```{r}
-bgmap <- raster('D:/ISSS608 Data Visualization/MC2/MC2/Geospatial/MC2-tourist.tif')
-bgmap
-```
-
-```{r}
-tmap_mode('plot')
-tm_shape(bgmap) +
-  tm_raster(bgmap,
-            legend.show = FALSE)
-```
-
-```{r}
-tmap_mode('view')
-tm_shape(bgmap) +
-  tm_rgb(bgmap, r = 1,g = 2,b = 3,
-         alpha = NA,
-         saturation = 1,
-         interpolate = TRUE,
-         max.value = 255)
-        
-```
-
-```{r}
-Ablia_st <- st_read(dsn = "D:/ISSS608 Data Visualization/MC2/MC2/Geospatial",
-                    layer = 'Abila')
-```
-
-## Improting Aspatial Data
-```{r}
-gps <- read_csv("D:/ISSS608 Data Visualization/MC2/MC2/gps.csv")
-glimpse(gps)
-```
-
-## Converting Date-Time Field
-```{r}
-gps$Timestamp <- date_time_parse(gps$Timestamp,
-                                 zone = "",
-                                 format = "%m/%d/%Y %H:%M:%S")
-gps$id <- as_factor(gps$id) 
-```
-
-## converting aspatial data into a simple feature data frame
-```{r}
-gps_sf <- st_as_sf(gps,
-                   coords = c("long","lat"),
-                   crs = 4326)
-```
-
-# creating movement path from GPS Points
-```{r}
-gps_path <- gps_sf %>%
-  group_by(id) %>% 
-  summarize(m = mean(Timestamp), ### have problems here
-            do_union = FALSE) %>%  
-  st_cast("LINESTRING")
-#summarie part is meaningless. need this part is only because group_by must have some calculation. but what we really want to do is just group data by id#
-```
-
-## plotting the gps paths
-```{r}
-gps_path_selected <- gps_path %>% 
-  filter(id %in% c(31))
-tmap_mode("view")
-tm_shape(bgmap) +
-  tm_rgb(bgmap, r = 1,g = 2,b = 3,
-         alpha = NA,
-         saturation = 1,
-         interpolate = TRUE,
-         max.value = 255) +
-  tm_shape(gps_path_selected) + tm_lines()
-```
-
 ```{r}
 car$id <- as.factor(car$id)
 
@@ -387,3 +318,195 @@ car_data <- car %>%
 ggplot(car_data,aes(x = hour,y = id,fill = n)) + geom_tile()+
   scale_fill_distiller(palette = "Blue",direction = 1)
 ```
+
+
+In this step, we input map and clear the noise gps data. Group gps data by CarID, day and hour, then combine cc_card transaction information and car moving route to locate owner of card and activities they may involve in. 
+
+```{r}
+bgmap <- raster('D:/ISSS608 Data Visualization/MC2/MC2/Geospatial/MC2-tourist.tif')
+bgmap
+
+tmap_mode('plot')
+tm_shape(bgmap) +
+  tm_raster(bgmap,
+            legend.show = FALSE)
+
+tmap_mode('view')
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255)
+        
+Ablia_st <- st_read(dsn = "D:/ISSS608 Data Visualization/MC2/MC2/Geospatial",
+                    layer = 'Abila')
+
+gps <- read_csv("D:/ISSS608 Data Visualization/MC2/MC2/gps.csv")
+glimpse(gps)
+
+
+gps$Timestamp <- date_time_parse(gps$Timestamp,
+                zone = "",
+                format = "%m/%d/%Y %H:%M:%S")
+gps$day <- as.factor(get_day(gps$Timestamp))
+
+gps$id <- as_factor(gps$id)
+
+gps$hour <- as.factor(get_hour(gps$Timestamp))
+
+gps_sf <- st_as_sf(gps,
+                   coords = c("long","lat"),
+                   crs = 4326)
+
+
+
+gps_path <- gps_sf %>%
+  group_by(id, day,hour) %>%
+  summarize(m = mean(Timestamp), 
+            do_union=FALSE) %>%
+  st_cast("LINESTRING")
+
+p = npts(gps_path, by_feature = TRUE)
+gps_path2 <- cbind(gps_path, p)
+
+gps_path <- gps_path2 %>%
+  filter(p > 1)
+```  
+## Movement at 3am
+All the movement at 3am are belong to Security department and they are Bodrogi Loreto(15), Mies Minke(24), Osvaldo Hennie(16), Osvaldo Hennie(21). This make this sign more suspicious.
+(pirctur)
+
+### CarID:15  Date:7th and 9th
+CarID 15 Bodrogi Loreto from last record on 6th is at 17:00 from GAScompany to home(?) however, He move at next 3am to near Speston Park and stay there for whole night then directly went to work next day. Similar path in 9th 3am, he went to place near Taxiarchan Park.
+
+
+```{r}
+gps_path_150617 <- gps_path %>% 
+  filter(id == 15,day == 6,hour ==17)
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_150617) + tm_lines()
+```
+
+```{r}
+gps_path_150703 <- gps_path %>% 
+  filter(id == 15,day == 7,hour ==3)
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_150703) + tm_lines()
+```
+
+
+```{r}
+gps_path_150707 <- gps_path %>% 
+  filter(id == 15,day == 7,hour %in% c(7,8))
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_150707) + tm_lines()
+```
+
+```{r}
+ gps_path_150903 <- gps_path %>% 
+  filter(id == 15,day == 9,hour == 3)
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_150903) + tm_lines()
+```
+
+### CarID 24 Date:9th
+
+Mies Minke(24) also have movement in 9th and we find he went to same place near Taxiarchan Park as CarID 15. Hence, there is a high possibility they meet secretly.
+
+```{r}
+gps_path_240903 <- gps_path %>% 
+  filter(id == 24,day == 9,hour == 3)
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_240903) + tm_lines()
+```
+
+### CarID 16 and 21 Date:11th 
+
+Vann Isia(16) and Osvaldo Hennie(21) met in 11th midnight. the activity this similar to what happened with Bodrogi Loreto and Mies Minke. We have reason to doubt Security Department's Perimeter Controls were planning something.
+
+Osvaldo Hennie(21) left until 11:00 next day and we miss the data Vann Isia(16)'s gps data from 3:00 to 18:00. Hence, we cannot located where she might go. 
+
+```{r}
+gps_path_161103 <- gps_path %>% 
+  filter(id == 16,day == 11,hour == 3)
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_161103) + tm_lines()
+```
+
+```{r}
+gps_path_211103 <- gps_path %>% 
+  filter(id == 21,day == 11,hour %in% c(3,11))
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_211103) + tm_lines()
+```
+
+### CarID 21 and 24 Date:14th 
+
+Osvaldo Hennie(21) have same path like 11th went to temple at 3:00 and this time met with Mies Minke(24)
+
+```{r}
+gps_path_211403 <- gps_path %>% 
+  filter(id == 24,day == 14,hour %in% c(3))
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_211403) + tm_lines()
+```
+
+In the conclusion, We have reason to doubt Security Department's Perimeter Controls were planning something. Bodrogi Loreto(15), Mies Minke(24), Osvaldo Hennie(16), Osvaldo Hennie(21) all have path met near temple and stay for whole night.
+
