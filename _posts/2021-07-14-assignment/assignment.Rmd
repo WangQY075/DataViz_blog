@@ -647,7 +647,25 @@ tm_shape(bgmap) +
   tm_shape(gps_path_04) + tm_lines()
 ```
 
-In the conlusion, GAStech's Executives have a golf meet in 19th from 12:00 to 16:00. And Midnight meeting of Security person may be monitor GAStech's Executives.
+In the conclusion, GAStech's Executives have a golf meet in 19th from 12:00 to 16:00. And Midnight meeting of Security person may be monitor GAStech's Executives.
 
+CarID|Credit Card|Loyalty Card |  Name
+-----|-----------|-------------|--------------
+4    |   7688    |   L4164     |  Barranco Ingrid
+10   |   8332    |   L2070     |  Campo-Corrente Ada
+32   |   2463    |   L6886     |  Strum Orhan
+35   |   8156    |   L5224     |  Vasco-Pais Willem
 
+```{r}
+gps_path_04 <- gps_path %>% 
+  filter(id == 11,day == 10, hour == 14)
 
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_04) + tm_lines()
+```
