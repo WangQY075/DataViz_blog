@@ -237,6 +237,7 @@ One Anomaly is credit card record and loyalty card record not match. According t
 
 One way to correct this is to find a whole transaction records by join cc_data and loyalty_data on Location, Price and Date. Because timestamp in cc_data have detailed time when transaction happened, some records happened in same location, price and data may have error. After manual remove the mismatched information, I get a new dataset include 1490 rows. 
 
+
 ![](img/Picture2.png)
 
 ### 4.1.2 Anomalies-2
@@ -258,7 +259,7 @@ Dig deeper into those transaction’s card number and price spend. I find some s
 
 **1321 17th $1239** Extremely large amount of purchase compare with other purchase records happened in Albert's Fine Clothing and 1321’s other transaction. This is the only record for 1321 in this location. Date is close to when kidnap happened.
 
-Below heatmap shows total transaction price by location by credit card number. Next step, we will add gps data in further explore the suspicious phenomenon and find the owner of credit card.
+Below heatmap shows total transaction price by location by credit card number. 
 
 ```{r}
 ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
@@ -269,13 +270,24 @@ ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
                                    vjust = .5))
 ```
 
+I observed that five card number’s transaction records are very clear. They only make transaction in business related location and usually large amount of money. Hence,I infer those cards belongs to Truck Drivers.
+
+![](img/Picture6.png)
+
+Besides, there are some location have relative less unique customer visit, this can be another point lead me find card owner.
+
+![](img/Picture7.png)
+
+
+Next step, I will add gps data in further explore the suspicious phenomenon and find the owner of credit card.
+
+
 ## 4.2 Question 2 & 3
 
 In this step, I input map and clear the noise gps data. Group gps data by CarID, day and hour, then combine cc_card transaction information and car moving route to locate owner of card and activities they may involve in. 
 
 ```{r}
 bgmap <- raster('D:/ISSS608 Data Visualization/MC2/MC2/Geospatial/MC2-tourist.tif')
-bgmap
 
 tmap_mode('plot')
 tm_shape(bgmap) +
@@ -310,7 +322,6 @@ gps_sf <- st_as_sf(gps,
                    coords = c("long","lat"),
                    crs = 4326)
 
-
 ```
 
 ```{r}
@@ -327,7 +338,7 @@ gps_path <- gps_path2 %>%
   filter(p > 1)
 ```  
 
-Looking at gps data only, first I find the rush period is Mon-Fri morning 7:00 to 8:00, Noon 12:00 to 13:00 and afternoon 17:00 to 18:00. I also find there are unusual gps records at 3am in 7th ,9th ,11th and 14th. 
+Looking at gps data only, first I find the rush period is Mon-Fri morning 7:00 to 8:00, Noon 12:00 to 13:00 and afternoon 17:00 to 18:00. 
 
 ```{r}
 car_data <- car %>% 
@@ -353,33 +364,38 @@ geom_tile(color = 'white',size = 0.1) +
 
 ```
 
+I also find there are unusual gps records at 3am in 7th ,9th ,11th and 14th. 
+![](img/Picture8.png)
+
+
+### 4.2.1 Truck Drivers 
+
+Compare the gps path with credit card transaction records showed before. I infer the owner of credit card and loyalty card:
+
+CarID|Credit Card|Loyalty Card
+-----|-----------|-------------
+101  |   9220    |   L4063
+104  |   8642    |   L2769
+105  |   7792    |   L5756
+106  |   2276    |   L3317
+107  |   4530    |   L8477
+
+![](img/Picture9.png)
 ```{r}
-car$id <- as.factor(car$id)
+gps_path_101 <- gps_path %>% 
+  filter(id == 107)
 
-car_data <- gps_path %>% 
-  group_by(id,day) %>% 
-  summarise(n = n())
-
-ggplot(car_data,aes(x = day,y = id,fill = n)) + geom_tile()+
-  scale_fill_distiller(palette = "blue",direction = 1)
-
-
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_101) + tm_lines()
 ```
 
-```{r}
-car$id <- as.character(car$id)
-
-car_data <- gps_path %>% 
-  group_by(id,hour) %>% 
-  summarise(n = n()) %>% 
-  ungroup() 
-ggplot(car_data,aes(x = hour,y = id,fill = n)) + geom_tile()+
-  scale_fill_distiller(palette = "Blue",direction = 1)
-```
-
-
-
-### 4.2.1 Movement at 3am
+### 4.2.3 Movement at 3am
 All the movement at 3am are belong to Security department and they are Bodrogi Loreto(15), Mies Minke(24), Osvaldo Hennie(16), Osvaldo Hennie(21). This make this sign more suspicious.
 
 ![](img/Picture5.png)
@@ -617,4 +633,6 @@ tm_shape(bgmap) +
 In the conlusion, GAStech's Executives have a golf meet in 19th from 12:00 to 16:00. And Midnight meeting of Security person may be monitor GAStech's Executives.
 
 Based on the daily gps path and credit card transaction records, I infer the cards of Executives shows below:
+
+
 
