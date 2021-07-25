@@ -36,9 +36,9 @@ for the map and gps data, I refer to Dr.Kam Tin Seong's courseware of [ISSS608 V
 # 3. METHODOLOGY & DATA PREPARATION
 
 The packages using for this Assignment shows below:
-geog
-No.|Packages|Function
----|--------|---------
+
+No.|Packages |Function
+---|---------|---------
 1  |tidyverse|Data cleaning and manipulation.
 2  |ggplot2  |ggplot2 is a system for declaratively creating graphics.
 3  |ggiraph  |ggiraph is a tool that allows you to create dynamic ggplot graphs.
@@ -233,11 +233,13 @@ pwk
 
 One Anomaly is credit card record and loyalty card record not match. According to the background information, loyalty cards records are collecting from employee’s credit card purchases and preferences records. Loyalty card records should match credit card records. However, cc_data has total 1490 rows and loyalty_data only include 1392 rows. This phenomenon hints us for some transaction, customer didn’t use loyalty card for discounts and rewards. Further dig the data, we also find, on the opposite, some customer using loyalty card but didn’t have credit card records. This kind of record happened in Stewart and Sons Fabrication and Carlyle Chemical Inc. One possible reason is those transaction is not paid by credit card. 
 
-{picture}
+![](img/Picture1.png)
 
 One way to correct this is to find a whole transaction records by join cc_data and loyalty_data on Location, Price and Date. Because timestamp in cc_data have detailed time when transaction happened, some records happened in same location, price and data may have error. After manual remove the mismatched information, I get a new dataset include 1490 rows. 
 
-## 4.1.2 Anomalies-2
+![](img/Picture2.png)
+
+### 4.1.2 Anomalies-2
 
 The box plot blow shows us several information. First, Top locations of total transaction price are business relative place or company. Second, some locations have transaction records extremely higher than normal. 
 
@@ -247,11 +249,14 @@ ggplot(cc_data, aes(x=price, y=reorder(location,total_price_location))) +
 ```
 
 Dig deeper into those transaction’s card number and price spend. I find some suspicious phenomenon:
-9551 13th $10000 extremely large amount of purchase compare with other purchase records happened in Frydos Autosupply n' More and 9551’s other transaction. This is the only record for 9551 in this location. 
 
-5010 18th $600 extremely large amount of purchase compare with other purchase records happened in Chostus Hotel. This is the only record for 5010 in this location.Date is close to when kidnap happened.
+![](img/Picture3.png)
 
-1321 17th $1239 extremely large amount of purchase compare with other purchase records happened in Albert's Fine Clothing and 1321’s other transaction. This is the only record for 1321 in this location. Date is close to when kidnap happened.
+**9551 13th $10000** Extremely large amount of purchase compare with other purchase records happened in Frydos Autosupply n' More and 9551’s other transaction. This is the only record for 9551 in this location. 
+
+**5010 18th $600** Extremely large amount of purchase compare with other purchase records happened in Chostus Hotel. This is the only record for 5010 in this location.Date is close to when kidnap happened.
+
+**1321 17th $1239** Extremely large amount of purchase compare with other purchase records happened in Albert's Fine Clothing and 1321’s other transaction. This is the only record for 1321 in this location. Date is close to when kidnap happened.
 
 Below heatmap shows total transaction price by location by credit card number. Next step, we will add gps data in further explore the suspicious phenomenon and find the owner of credit card.
 
@@ -264,7 +269,7 @@ ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
                                    vjust = .5))
 ```
 
-# Question 2
+## 4.2 Question 2 & 3
 
 In this step, I input map and clear the noise gps data. Group gps data by CarID, day and hour, then combine cc_card transaction information and car moving route to locate owner of card and activities they may involve in. 
 
@@ -374,12 +379,14 @@ ggplot(car_data,aes(x = hour,y = id,fill = n)) + geom_tile()+
 
 
 
-## Movement at 3am
+### 4.2.1 Movement at 3am
 All the movement at 3am are belong to Security department and they are Bodrogi Loreto(15), Mies Minke(24), Osvaldo Hennie(16), Osvaldo Hennie(21). This make this sign more suspicious.
-(pirctur)
 
-### CarID:15  Date:7th and 9th
-CarID 15 Bodrogi Loreto from last record on 6th is at 17:00 from GAScompany to home(?) however, He move at next 3am to near Speston Park and stay there for whole night then directly went to work next day. Similar path in 9th 3am, he went to place near Taxiarchan Park.
+![](img/Picture5.png)
+
+
+#### CarID:15  Date:7th and 9th
+CarID 15 Bodrogi Loreto from last record on 6th is at 17:00 from GAScompany to home. However, He move at next 3am to near Speston Park and stay there for whole night then directly went to work next day. Similar path in 9th 3am, he went to place near Taxiarchan Park.
 
 
 ```{r}
@@ -439,7 +446,7 @@ tm_shape(bgmap) +
   tm_shape(gps_path_150903) + tm_lines()
 ```
 
-### CarID 24 Date:9th
+#### CarID 24 Date:9th
 
 Mies Minke(24) also have movement in 9th and we find he went to same place near Taxiarchan Park as CarID 15. Hence, there is a high possibility they meet secretly.
 
@@ -457,7 +464,7 @@ tm_shape(bgmap) +
   tm_shape(gps_path_240903) + tm_lines()
 ```
 
-### CarID 16 and 21 Date:11th 
+#### CarID 16 and 21 Date:11th 
 
 Vann Isia(16) and Osvaldo Hennie(21) met in 11th midnight. the activity this similar to what happened with Bodrogi Loreto and Mies Minke. We have reason to doubt Security Department's Perimeter Controls were planning something.
 
@@ -491,7 +498,7 @@ tm_shape(bgmap) +
   tm_shape(gps_path_211103) + tm_lines()
 ```
 
-### CarID 21 and 24 Date:14th 
+#### CarID 21 and 24 Date:14th 
 
 Osvaldo Hennie(21) have same path like 11th went to temple at 3:00 and this time met with Mies Minke(24)
 
@@ -511,13 +518,15 @@ tm_shape(bgmap) +
 
 In the conclusion, We have reason to doubt Security Department's Perimeter Controls were planning something. Bodrogi Loreto(15), Mies Minke(24), Osvaldo Hennie(16), Osvaldo Hennie(21) all have path met near temple and stay for whole night.
 
-## Executive's Golf Meet
+### 4.2.2 Executive's Golf Meet
 
 From the heatmap, I find only six persons have transaction record in Desafio Golf Course. I guess those are GAS’s Executives. Executives are important for this event and there are hight possibility they meet each other regularly at Desafio Golf Course. Hence, I will dig deep in Executives gps path.
 
-(picture)
+![](img/Picture4.png)
 
-### CarID 31 Sanjorge Jr. Sten President/CEO
+
+
+#### CarID 31 Sanjorge Jr. Sten President/CEO
 
 I only have three days gps data of CEO. He has a simple life and seems stay in hotel. He went out for work at 17th and 18th noon go out for lunch. Then 19th went to golf course. The map shows gps path of CarID 31 in 19th
 
@@ -535,7 +544,7 @@ tm_shape(bgmap) +
   tm_shape(gps_path_3119) + tm_lines()
 ```
 
-### CarID 32 Strum Orhan SVP/COO
+#### CarID 32 Strum Orhan SVP/COO
 
 Strum Orhan’s path is simple too. During 19th, he went to golf course and went to shopping then went home. Hence, we basically located GAS’s Executives have a golf meet in 19th is worth noting that his home is near Taxiarchan Park where Security always went at midnight. It might have some relation between these two signs
 
@@ -553,7 +562,7 @@ tm_shape(bgmap) +
   tm_shape(gps_path_3219) + tm_lines()
 ```
 
-### CarID 35 Vasco-Pais Willem Environmental Safety Advisor
+#### CarID 35 Vasco-Pais Willem Environmental Safety Advisor
 
 From background information, we know that GAStech has not been as successful in demonstrating environmental stewardship. So Vasco-Pais Willem as Environmental Safety Advisor is important. From his gps path, we find he stay near temple, which is the meet place where Osvaldo Hennie(21) met with Mies Minke(24) at 3:00am in 14th.
 
@@ -571,7 +580,7 @@ tm_shape(bgmap) +
   tm_shape(gps_path_35) + tm_lines()
 ```
 
-### CarID 10 Campo-Corrente Ada SVP/CIO
+#### CarID 10 Campo-Corrente Ada SVP/CIO
 
 Once again, we find where Campo-Corrente Ada(10) stay is the place where Bodrogi Loreto(15) went at 3:00am in 7th and 9th.
 
@@ -589,7 +598,7 @@ tm_shape(bgmap) +
   tm_shape(gps_path_10) + tm_lines()
 ```
 
-### CarID 4 Barranco Ingrid SVP/CFO
+#### CarID 4 Barranco Ingrid SVP/CFO
 
 ```{r}
 gps_path_04 <- gps_path %>% 
