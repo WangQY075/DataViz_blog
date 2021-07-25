@@ -1,7 +1,7 @@
 ---
 title: "Assignment"
 description: |
-  A short description of the post.
+  Mini Challenge-2 of VAST Challenge 2021.
 author:
   - name: Qinyu Wang
     url: https://www.linkedin.com/in/qinyu-wang/
@@ -22,33 +22,36 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE)
 ```
 
-# BACKGROUND
+# 1.BACKGROUND
 In January 2014, the leaders of GAStech are celebrating their new-found fortune as a result of the initial public offering of their very successful company. In the midst of this celebration, several employees of GAStech go missing.
 
-In Mini-Challenge 2,we will analysis GAStech’s company cars gps records, credit card transactions and loyalty card usage data. From this data, we will identify anomalies and suspicious behaviors and identify which people use which credit and loyalty cards. All questions will be responsed by using visual analysis.
+In Mini-Challenge 2,I will analysis GAStech’s company cars gps records, credit card transactions and loyalty card usage data. From this data, I will identify anomalies and suspicious behaviors and identify which people use which credit and loyalty cards. All questions will be responsed by using visual analysis.
 
-# LITERATURE REVIEW
+# 2.LITERATURE REVIEW
 
-The same dataset have been used in 2014 VAST Challenge
+The same dataset have been used in [2014 VAST Challenge](https://www.cs.umd.edu/hcil/varepository/VAST%20Challenge%202014/challenges/MC2%20-%20Patterns%20of%20Life%20Analysis/). Previous works on this dataset inspire a lot in this assignment. Many groups using heatmap to show the relationship of location, date, time etc. 
+[Central South University Group](https://www.cs.umd.edu/hcil/varepository/VAST%20Challenge%202014/challenges/MC2%20-%20Patterns%20of%20Life%20Analysis/entries/Central%20South%20University/) Separate locations into different groups make the most popular location more meaningful. They also break gps data into different time period is also make gps path clearer. [UWB-Smith-MC2](https://www.cs.umd.edu/hcil/varepository/VAST%20Challenge%202014/challenges/MC2%20-%20Patterns%20of%20Life%20Analysis/entries/University%20of%20Buenos%20Aires%20-%20Croceri/)focused on business relative area and also break time into four period. 
+for the map and gps data, I refer to Dr.Kam Tin Seong's courseware of [ISSS608 Visual Analytics and Applications](https://isss608.netlify.app/)
 
-# METHODOLOGY & DATA PREPARATION
+# 3. METHODOLOGY & DATA PREPARATION
 
 The packages using for this Assignment shows below:
-
+geog
 No.|Packages|Function
 ---|--------|---------
-1  |tidyverse|Data cleaning and manipulation 
-2  |ggplot2  |ggplot2 is a system for declaratively creating graphics
+1  |tidyverse|Data cleaning and manipulation.
+2  |ggplot2  |ggplot2 is a system for declaratively creating graphics.
 3  |ggiraph  |ggiraph is a tool that allows you to create dynamic ggplot graphs.
-4  |lubridate,clock |
+4  |lubridate,clock |For clear and manipulate date.
+5  |tmap,raster,mapview,sf|For geographical data.
 
 
-## Library Packages
+## 3.1 Library Packages
 ```{r}
 packages = c('tmap', 'clock', 
              'tidyverse','ggplot2','ggiraph',
              'lubridate','ggthemes','viridis','plotly','treemapify','sf',
-             'raster','readr','tmap','mapview'
+             'raster','readr','mapview'
              )
 for (p in packages){
   if(!require(p, character.only = T)){
@@ -58,7 +61,7 @@ for (p in packages){
 }
 ```
 
-## Import data
+## 3.2 Import data
 
 ```{r}
 cc_data<- read.csv('D:/ISSS608 Data Visualization/MC2/MC2/cc_data.csv')
@@ -71,7 +74,7 @@ glimpse(cc_data)
 glimpse(loyalty_data)
 ```
 
-## Data Preparation: cc_data
+## 3.3 Data Preparation
 
 Before any analysis, we first prepared cc_data and loyalty card. We find timestamp is treated as "Character"" data type instead of date data type. We correct this by using lubridate package. Then separate timestamp into day, weekday for further analysis. Change the “Last4num” datatype from int to chr. Then calculate the total price by location, card number ,card number and locations, respectively.
 
@@ -105,11 +108,7 @@ cc_data <- cc_data %>%
   mutate(total_price_ccnum = sum(price)) %>% 
   ungroup()
 
-```
 
-## Data Preparation: loyalty_data
-
-```{r}
 
 loyalty_data$dmy<- date_time_parse(loyalty_data$timestamp,
                 zone = "",
@@ -136,10 +135,6 @@ loyalty_data <- loyalty_data %>%
   mutate(total_price_lynum = sum(price)) %>% 
   ungroup()
 
-```
-
-## Data Preparation: car_data
-```{r}
 car$dmy_hm <- date_time_parse(car$Timestamp,
                 zone = "",
                 format = "%m/%d/%Y %H:%M:%S")
@@ -150,9 +145,11 @@ car$hour <- hour(car$dmy_hm)
 
 ```
 
-# Question 1
+# 4. INSIGHTS
 
-First, we look at cc card and loyalty card separately. For all location, we segment them into four groups: Business Dinning Living and Unknown. Through this bar chart we observed that the most popular place for each group is Katerina’s Café, Hippokampos, Abila Airport and Ouzeri Elian. Overall Katerina’s Café is the most popular place and have been visit more than 200 times. Because of the relationship between credit card and loyalty card, loyalty card records give us the same result. 
+## 4.1 Question 1
+
+First, I look at cc card and loyalty card separately. For all location, I segment them into four groups: Business Dinning Living and Unknown. Through this bar chart, I observed that the most popular place for each group is Katerina’s Café, Hippokampos, Abila Airport and Ouzeri Elian. Overall Katerina’s Café is the most popular place and have been visit more than 200 times. Because of the relationship between credit card and loyalty card, loyalty card records give us the same result. 
 
 ```{r}
 cc_bar_chart <- cc_data %>% 
@@ -202,7 +199,7 @@ ggplotly(p)
 
 ```
 
-Then we plot heatmaps by weekday and hour of each day for the most popular location. Abila Airport’s records mainly in workday between 8:00 to 16:00. Th popular time of Katerina’s Café and Hippokampos in 12:00 to 13:00 and 18:00 and 20:00. Those are the time period when employee have their lunch break or off office.  The most popular time for Abila Zacharo is 12:00-13:00.
+Then I plot heatmaps by weekday and hour of each day for the most popular location. Abila Airport’s records mainly in workday between 8:00 to 16:00. Th popular time of Katerina’s Café and Hippokampos in 12:00 to 13:00 and 18:00 and 20:00. Those are the time period when employee have their lunch break or off office.The most popular time for Abila Zacharo is 12:00-13:00.
 
 ```{r}
 plot <- cc_data%>% 
@@ -232,16 +229,15 @@ geom_tile(color = 'white',size = 0.1) +
 pwk
 ```
 
-## Anomalies-1
+### 4.1.1 Anomalies-1
 
 One Anomaly is credit card record and loyalty card record not match. According to the background information, loyalty cards records are collecting from employee’s credit card purchases and preferences records. Loyalty card records should match credit card records. However, cc_data has total 1490 rows and loyalty_data only include 1392 rows. This phenomenon hints us for some transaction, customer didn’t use loyalty card for discounts and rewards. Further dig the data, we also find, on the opposite, some customer using loyalty card but didn’t have credit card records. This kind of record happened in Stewart and Sons Fabrication and Carlyle Chemical Inc. One possible reason is those transaction is not paid by credit card. 
 
 {picture}
 
-One way to correct this is to find a whole transaction records by join cc_data and loyalty_data on Location, Price and Date. Because timestamp in cc_data have detailed time when transaction happened, some records happened in same location, price and data may have error. After manual remove the mismatched information, we get a new dataset include 1490 rows. 
+One way to correct this is to find a whole transaction records by join cc_data and loyalty_data on Location, Price and Date. Because timestamp in cc_data have detailed time when transaction happened, some records happened in same location, price and data may have error. After manual remove the mismatched information, I get a new dataset include 1490 rows. 
 
-
-## Anomalies-2
+## 4.1.2 Anomalies-2
 
 The box plot blow shows us several information. First, Top locations of total transaction price are business relative place or company. Second, some locations have transaction records extremely higher than normal. 
 
@@ -250,7 +246,7 @@ ggplot(cc_data, aes(x=price, y=reorder(location,total_price_location))) +
   geom_boxplot(outlier.colour="tan1")
 ```
 
-Dig deeper into those transaction’s card number and price spend. We find some suspicious phenomenon:
+Dig deeper into those transaction’s card number and price spend. I find some suspicious phenomenon:
 9551 13th $10000 extremely large amount of purchase compare with other purchase records happened in Frydos Autosupply n' More and 9551’s other transaction. This is the only record for 9551 in this location. 
 
 5010 18th $600 extremely large amount of purchase compare with other purchase records happened in Chostus Hotel. This is the only record for 5010 in this location.Date is close to when kidnap happened.
@@ -270,57 +266,7 @@ ggplot(cc_data,aes(x = last4ccnum,y = location,fill = total_price_ccnum))+
 
 # Question 2
 
-Looking at gps data only, first we find the rush period is Mon-Fri morning 7:00 to 8:00, Noon 12:00 to 13:00 and afternoon 17:00 to 18:00. We also find there are unusual gps records at 3am in 7th ,9th ,11th and 14th. 
-
-```{r}
-car_data <- car %>% 
-  group_by(day,hour) %>% 
-  summarise(n = n()) %>% 
-  ungroup() 
-
-full_df_car <- expand.grid(day = unique(car$day),
-                          hour = c(1:23))
-
-plot_full_car <- car_data %>% 
-  right_join(
-    full_df_car,
-    by = c('day','hour') 
-  ) %>% 
-  mutate(hour = as.ordered(hour)) %>% 
-  mutate(day = as.ordered(day)) %>% 
-  replace_na(list(n = 0L)) 
-
-ggplot(plot_full_car, aes(hour,day,fill = n)) + 
-geom_tile(color = 'white',size = 0.1) + 
-   scale_fill_distiller(palette = "Green",direction = 1)
-
-```
-```{r}
-car$id <- as.factor(car$id)
-
-car_data <- car %>% 
-  group_by(id,day) %>% 
-  summarise(n = n()) %>% 
-  ungroup() 
-ggplot(car_data,aes(x = day,y = id,fill = n)) + geom_tile()+
-  scale_fill_distiller(palette = "blue",direction = 1)
-
-
-```
-
-```{r}
-car$id <- as.character(car$id)
-
-car_data <- car %>% 
-  group_by(id,hour) %>% 
-  summarise(n = n()) %>% 
-  ungroup() 
-ggplot(car_data,aes(x = hour,y = id,fill = n)) + geom_tile()+
-  scale_fill_distiller(palette = "Blue",direction = 1)
-```
-
-
-In this step, we input map and clear the noise gps data. Group gps data by CarID, day and hour, then combine cc_card transaction information and car moving route to locate owner of card and activities they may involve in. 
+In this step, I input map and clear the noise gps data. Group gps data by CarID, day and hour, then combine cc_card transaction information and car moving route to locate owner of card and activities they may involve in. 
 
 ```{r}
 bgmap <- raster('D:/ISSS608 Data Visualization/MC2/MC2/Geospatial/MC2-tourist.tif')
@@ -360,9 +306,11 @@ gps_sf <- st_as_sf(gps,
                    crs = 4326)
 
 
+```
 
+```{r}
 gps_path <- gps_sf %>%
-  group_by(id, day,hour) %>%
+  group_by(id, day, hour) %>%
   summarize(m = mean(Timestamp), 
             do_union=FALSE) %>%
   st_cast("LINESTRING")
@@ -373,6 +321,59 @@ gps_path2 <- cbind(gps_path, p)
 gps_path <- gps_path2 %>%
   filter(p > 1)
 ```  
+
+Looking at gps data only, first I find the rush period is Mon-Fri morning 7:00 to 8:00, Noon 12:00 to 13:00 and afternoon 17:00 to 18:00. I also find there are unusual gps records at 3am in 7th ,9th ,11th and 14th. 
+
+```{r}
+car_data <- car %>% 
+  group_by(day,hour) %>% 
+  summarise(n = n()) %>% 
+  ungroup() 
+
+full_df_car <- expand.grid(day = unique(car$day),
+                          hour = c(1:23))
+
+plot_full_car <- car_data %>% 
+  right_join(
+    full_df_car,
+    by = c('day','hour') 
+  ) %>% 
+  mutate(hour = as.ordered(hour)) %>% 
+  mutate(day = as.ordered(day)) %>% 
+  replace_na(list(n = 0L)) 
+
+ggplot(plot_full_car, aes(hour,day,fill = n)) + 
+geom_tile(color = 'white',size = 0.1) + 
+   scale_fill_distiller(palette = "Green",direction = 1)
+
+```
+
+```{r}
+car$id <- as.factor(car$id)
+
+car_data <- gps_path %>% 
+  group_by(id,day) %>% 
+  summarise(n = n())
+
+ggplot(car_data,aes(x = day,y = id,fill = n)) + geom_tile()+
+  scale_fill_distiller(palette = "blue",direction = 1)
+
+
+```
+
+```{r}
+car$id <- as.character(car$id)
+
+car_data <- gps_path %>% 
+  group_by(id,hour) %>% 
+  summarise(n = n()) %>% 
+  ungroup() 
+ggplot(car_data,aes(x = hour,y = id,fill = n)) + geom_tile()+
+  scale_fill_distiller(palette = "Blue",direction = 1)
+```
+
+
+
 ## Movement at 3am
 All the movement at 3am are belong to Security department and they are Bodrogi Loreto(15), Mies Minke(24), Osvaldo Hennie(16), Osvaldo Hennie(21). This make this sign more suspicious.
 (pirctur)
@@ -509,4 +510,102 @@ tm_shape(bgmap) +
 ```
 
 In the conclusion, We have reason to doubt Security Department's Perimeter Controls were planning something. Bodrogi Loreto(15), Mies Minke(24), Osvaldo Hennie(16), Osvaldo Hennie(21) all have path met near temple and stay for whole night.
+
+## Executive's Golf Meet
+
+From the heatmap, I find only six persons have transaction record in Desafio Golf Course. I guess those are GAS’s Executives. Executives are important for this event and there are hight possibility they meet each other regularly at Desafio Golf Course. Hence, I will dig deep in Executives gps path.
+
+(picture)
+
+### CarID 31 Sanjorge Jr. Sten President/CEO
+
+I only have three days gps data of CEO. He has a simple life and seems stay in hotel. He went out for work at 17th and 18th noon go out for lunch. Then 19th went to golf course. The map shows gps path of CarID 31 in 19th
+
+```{r}
+gps_path_3119 <- gps_path %>% 
+  filter(id == 31,day == 19)
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_3119) + tm_lines()
+```
+
+### CarID 32 Strum Orhan SVP/COO
+
+Strum Orhan’s path is simple too. During 19th, he went to golf course and went to shopping then went home. Hence, we basically located GAS’s Executives have a golf meet in 19th is worth noting that his home is near Taxiarchan Park where Security always went at midnight. It might have some relation between these two signs
+
+```{r}
+gps_path_3219 <- gps_path %>% 
+  filter(id == 32,day == 19,hour %in% c(12,18,20))
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_3219) + tm_lines()
+```
+
+### CarID 35 Vasco-Pais Willem Environmental Safety Advisor
+
+From background information, we know that GAStech has not been as successful in demonstrating environmental stewardship. So Vasco-Pais Willem as Environmental Safety Advisor is important. From his gps path, we find he stay near temple, which is the meet place where Osvaldo Hennie(21) met with Mies Minke(24) at 3:00am in 14th.
+
+```{r}
+gps_path_35 <- gps_path %>% 
+  filter(id == 35,day == 19,hour == 12)
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_35) + tm_lines()
+```
+
+### CarID 10 Campo-Corrente Ada SVP/CIO
+
+Once again, we find where Campo-Corrente Ada(10) stay is the place where Bodrogi Loreto(15) went at 3:00am in 7th and 9th.
+
+```{r}
+gps_path_10 <- gps_path %>% 
+  filter(id == 10,day == 19,hour == 19)
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_10) + tm_lines()
+```
+
+### CarID 4 Barranco Ingrid SVP/CFO
+
+```{r}
+gps_path_04 <- gps_path %>% 
+  filter(id == 4,day == 19)
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1,g = 2,b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(gps_path_04) + tm_lines()
+```
+
+In the conlusion, GAStech's Executives have a golf meet in 19th from 12:00 to 16:00. And Midnight meeting of Security person may be monitor GAStech's Executives.
+
+Based on the daily gps path and credit card transaction records, I infer the cards of Executives shows below:
 
