@@ -379,7 +379,7 @@ CarID|Credit Card|Loyalty Card |  Name
 105  |   7792    |   L5756     |  Morlun Valeria
 106  |   2276    |   L3317     |  Morlun Adan
 107  |   4530    |   L8477     |  Morluniau Cecilia
-107  |   4530    |   L8477
+
 
 Because of lacking the information of truck driver's name match with carID. Hence, I can only  match person with card by assuming the first truck driver in the driving carID 101 
 
@@ -405,6 +405,12 @@ Not so many transaction records happened in Chostus Hotel. I find expect 5010, w
 ![](img/Picture10.png)
 
 Using the same way, I investigate CarID gps path and find Sanjorge Jr. Sten(CarID31),Orilla Elsa(CarID7) and Tempestad Brand(CarID 33) are cars went to hotel. Further look into other place they went. I guess 9683-L7291 blongs to Tempestad Brand(CarID 33) and 2540-L5947 belongs to Orilla Elsa(CarID7). And 5010-L2459 belongs to Sanjorge Jr. Sten(CarID31)
+
+CarID|Credit Card|Loyalty Card |  Name
+-----|-----------|-------------|--------------
+31   |   5010    |   L2459     |  Sanjorge Jr. Sten
+7    |   2540    |   L5947     |  Orilla Elsa
+33   |   9683    |   L7291     |  Tempestad Brand
 
 ### 4.2.3 Movement at 3am
 All the movement at 3am are belong to Security department and they are Bodrogi Loreto(15), Mies Minke(24), Osvaldo Hennie(16), Osvaldo Hennie(21). This make this sign more suspicious.
@@ -642,8 +648,6 @@ tm_shape(bgmap) +
 ```
 
 In the conlusion, GAStech's Executives have a golf meet in 19th from 12:00 to 16:00. And Midnight meeting of Security person may be monitor GAStech's Executives.
-
-Based on the daily gps path and credit card transaction records, I infer the cards of Executives shows below:
 
 
 
