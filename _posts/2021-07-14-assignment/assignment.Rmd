@@ -372,13 +372,16 @@ I also find there are unusual gps records at 3am in 7th ,9th ,11th and 14th.
 
 Compare the gps path with credit card transaction records showed before. I infer the owner of credit card and loyalty card:
 
-CarID|Credit Card|Loyalty Card
------|-----------|-------------
-101  |   9220    |   L4063
-104  |   8642    |   L2769
-105  |   7792    |   L5756
-106  |   2276    |   L3317
+CarID|Credit Card|Loyalty Card |  Name
+-----|-----------|-------------|--------------
+101  |   9220    |   L4063     |  Hafon Albina
+104  |   8642    |   L2769     |  Mies Henk
+105  |   7792    |   L5756     |  Morlun Valeria
+106  |   2276    |   L3317     |  Morlun Adan
+107  |   4530    |   L8477     |  Morluniau Cecilia
 107  |   4530    |   L8477
+
+Because of lacking the information of truck driver's name match with carID. Hence, I can only  match person with card by assuming the first truck driver in the driving carID 101 
 
 ![](img/Picture9.png)
 ```{r}
@@ -394,6 +397,14 @@ tm_shape(bgmap) +
          max.value = 255) +
   tm_shape(gps_path_101) + tm_lines()
 ```
+
+### 4.2.2 Couple in Engineering Department
+
+Not so many transaction records happened in Chostus Hotel. I find expect 5010, which is unusual large transaction, the rest record all made by 2540 and 9683. They always have records on same day and very close transaction time. Hence, I guess they met know or have close relationship.
+
+![](img/Picture10.png)
+
+Using the same way, I investigate CarID gps path and find Sanjorge Jr. Sten(CarID31),Orilla Elsa(CarID7) and Tempestad Brand(CarID 33) are cars went to hotel. Further look into other place they went. I guess 9683-L7291 blongs to Tempestad Brand(CarID 33) and 2540-L5947 belongs to Orilla Elsa(CarID7). And 5010-L2459 belongs to Sanjorge Jr. Sten(CarID31)
 
 ### 4.2.3 Movement at 3am
 All the movement at 3am are belong to Security department and they are Bodrogi Loreto(15), Mies Minke(24), Osvaldo Hennie(16), Osvaldo Hennie(21). This make this sign more suspicious.
